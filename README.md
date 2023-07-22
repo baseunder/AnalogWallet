@@ -17,7 +17,7 @@ registers of the Mega32u4 controller to wait for a new ADC conversion. This spee
 
 ## Crypto
 Currently all secp256k1 crypto currencies are supported, this includes for example Bitcoin, Ethereum and of course all Ethereum compatible chains.
-The wallet provides plain secp256k1 elliptic curve operations:
+The wallet provides plain secp256k1 elliptic curve operations ( https://github.com/kmackay/micro-ecc ):
 * Private key generation (random number)
 * Public key extraction (on curve)
 * Hash signing (for example TX or message signature creation)
