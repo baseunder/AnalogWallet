@@ -1,7 +1,7 @@
 #include "bckp.h"
-#include <SPI.h>
 #include <SD.h>
-String filename;
+
+String filename = "0000000000000000";
 void setFileName(byte pub[]){
   filename = "";
   for(int i = 0; i < 8; i++) {
@@ -11,29 +11,28 @@ void setFileName(byte pub[]){
     filename += String(pub[i], HEX);
   }
 }
-bool initBackup(byte p1[], byte pub1[]){
-  setFileName(pub1);
+bool checkCard(){
   if (!SD.begin(4) || SD.exists(filename)) {
-    Serial.println("12"); //SD Card initialization failed or already a Backup
     return false;
   }
+  return true;
+}
+bool initBackup(byte p1[], byte pub1[]){
+  setFileName(pub1);
+  if (!checkCard)return false;
   File backupFile = SD.open(filename, FILE_WRITE);
   if (backupFile){
     backupFile.write(p1, 32);
     backupFile.close();
     return checkBackup(p1, pub1);
   }else{
-    Serial.println("file not writable");
     return false;
   }
 }
 
 bool checkBackup(byte p1[], byte pub1[]){
   setFileName(pub1);
-  if (!SD.begin(4) || SD.exists(filename)) {
-    Serial.println("12"); //SD Card initialization failed or already a Backup
-    return false;
-  }
+  if (!checkCard)return false;
   File backupFile = SD.open(filename, FILE_READ);
   if (backupFile){
     for (int i = 0; i < 32; i++) {
@@ -44,7 +43,6 @@ bool checkBackup(byte p1[], byte pub1[]){
     backupFile.close();
     return true;
   }else{
-    Serial.println("13"); // file not readable
     return false;
   }
 }
@@ -58,7 +56,6 @@ bool restoreBackup(byte *p1, String fn){
     backupFile.close();
     return true;
   }else{
-    Serial.println("14"); // backup not readable
     return false;
   }
 }

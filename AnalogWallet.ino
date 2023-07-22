@@ -7,9 +7,8 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
   Serial.begin(115200);
-  setRNG();
-  flickrTest();
   while (!Serial)  { }
+  setRNG();
 }
 void loop() {
   if (Serial.available() > 0) {
@@ -34,6 +33,7 @@ void loop() {
         while (!Serial.available());
         Serial.readBytes(hash, 32);
         sign(hash);
+        while(1);
     } else if (cmd == "restore") {
       restore(Serial.readStringUntil('\n'));
     } else if (cmd == "test") {
@@ -41,10 +41,15 @@ void loop() {
     } else if (cmd == "rnd") {
       while(1){
         Serial.write(getTrueRotateRandomByte());
-        }
+      }
+    } else if (cmd == "rea") {
+      while(1){
+        Serial.println(getRead());
+      }
     } else {
       Serial.println("0");
     }
+    delay(250);
   }
   getTrueRotateRandomByte();
 }

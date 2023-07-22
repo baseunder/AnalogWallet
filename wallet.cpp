@@ -7,7 +7,6 @@
 uint8_t private1[32];
 uint8_t public1[64];
 
-const struct uECC_Curve_t * curve = uECC_secp256k1();
 #define initBitPos 32+64 //pri pub
 
 void setRNG()
@@ -30,6 +29,7 @@ void setRNG()
   ADCSRA &= ~(1 << ADATE);
   // Disable auto triggering
   ADCSRA &= ~(1 << ADIE);
+  flickrTest();
   uECC_set_rng(&RNG);
 }
 void writePublicKey(){
@@ -37,20 +37,16 @@ void writePublicKey(){
 }
 bool initDevice(byte passw[]){
   if (EEPROM.read(initBitPos)==1){
-    Serial.println("19"); //"device already initialized"
     return false;
   }
-  unsigned long a = millis();
   private1[0] = 0;
   while (private1[0] == 0){
-    uECC_make_key(public1, private1, curve);
+    uECC_make_key(public1, private1, uECC_secp256k1());
   }
   for (int i = 0; i < 32; i++) {
     private1[i] += passw[i];
   }
-  Serial.print("Made key 1 in "); Serial.println(millis()-a);
   if (!initBackup(private1, public1)){
-    Serial.println("check SD card");
     return false;
   }
   EEPROM.update(initBitPos, 0);
@@ -63,13 +59,7 @@ bool initDevice(byte passw[]){
   EEPROM.update(initBitPos, 1);
   walletstart(passw);
   if (checkBackup(private1, public1)){
-      for(int i = 0; i < 64; i++) {
-        if(public1[i] < 0x10) {
-          Serial.print('0');
-        }
-        Serial.print(String(public1[i], HEX));
-      }
-      Serial.println();
+      Serial.write(public1,64);
       return true;
   }else{
     return false;
@@ -77,32 +67,25 @@ bool initDevice(byte passw[]){
 }
 
 void walletstart(byte passw[]){
-  delay(1000);
-  for (int i = 0; i < 32; i++) {
-    if (EEPROM.read(i+96) != passw[i]){
-      Serial.println("18"); //"ERROR wrong password"
-      while(1);
-      }
-  }
   for (int i = 0; i < 32; i++) {
     private1[i] = EEPROM.read(i)-passw[i];
   }
   uint8_t public2[64];
-  uECC_compute_public_key(private1, public2, curve);
+  uECC_compute_public_key(private1, public2, uECC_secp256k1());
   for (int i = 0; i < 64; i++) {
     public1[i] = EEPROM.read(i+32);
-    if(public1[i]!=public2[i]){
-      Serial.print("ERROR on public key and private/pass restore ");
-    }
+  }
+  if(memcmp(public1, public2, 64) != 0){
+    Serial.print("ERROR on public key and private/pass restore ");
   }
 }
 
 bool eccTest(){
   if (EEPROM.read(initBitPos)==0){
-    Serial.println("16"); //Device state -> INIT not done
+    Serial.write(16); //Device state -> INIT not done
     return false;
   }
-  Serial.println("17"); //Device state -> INIT ok
+  Serial.write(17); //Device state -> INIT ok
   uint8_t hash[32] = {0};
   memcpy(hash, public1, 32);
   sign(hash);
@@ -117,31 +100,18 @@ void eraseDevice(){
   }
 }
 void sign(uint8_t *hash){
-  uint8_t sig[64] = {0};
-  if (!uECC_sign(private1, hash, 32, sig, curve)){
-    Serial.println("15"); //not able to sign...
+  uint8_t sig[64];
+  if (!uECC_sign(private1, hash, 32, sig, uECC_secp256k1())){
+    Serial.write(15); //not able to sign...
   }else{
-    for(int i = 0; i < 64; i++) {
-      if(sig[i] < 0x10) {
-        Serial.print('0');
-      }
-      Serial.print(String(sig[i], HEX));
-    }
-    Serial.println();
+    Serial.write(sig,64);
   }
 }
 void restore(String fn){
   if (restoreBackup(private1, fn)){
-    Serial.println("restore done:");
-    for(int i = 0; i < 64; i++) {
-      if(public1[i] < 0x10) {
-        Serial.print('0');
-      }
-      Serial.print(String(public1[i], HEX));
-    }    
-    Serial.println();
+    writePublicKey();
   }else{
-    Serial.println("14"); //restore ERROR
+    Serial.write(14); //restore ERROR
   }
 }
 

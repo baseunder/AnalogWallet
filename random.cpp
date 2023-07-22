@@ -11,7 +11,6 @@ void pushLeftStack(byte bitToPush) {
 void pushRightStackRight(byte bitToPush) {
   rightStack = (rightStack >> 1) ^ (bitToPush << 7) ^ rightStack;
 }
-
 int getRead(){
     // Enable the ADC
     ADCSRA |= (1 << ADEN);
@@ -23,7 +22,7 @@ int getRead(){
 }
 
 void flickrTest(){
-  int vonneumann;
+  int vonneumann = 0;
   for (int i=0; i<1000; i++) {
     int leftBits = getRead();
     int rightBits = getRead();
@@ -39,12 +38,16 @@ void flickrTest(){
     while(1);
     }
 }
+byte lastStack;
+byte finalByte;
+int leftBits;
+int rightBits;
 byte getTrueRotateRandomByte() {
-  byte finalByte = 0;
-  byte lastStack = leftStack ^ rightStack;
+  finalByte = 0;
+  lastStack = leftStack ^ rightStack;
   for (int i=0; i<4; i++) {
-    int leftBits = getRead();
-    int rightBits = getRead();
+    leftBits = getRead();
+    rightBits = getRead();
 
     finalByte ^= rotate(leftBits, i);
     finalByte ^= rotate(rightBits, 7-i);
@@ -67,6 +70,7 @@ byte getTrueRotateRandomByte() {
   return lastByte ^ leftStack ^ rightStack;
 }
 int RNG(uint8_t *dest, unsigned size){
+  flickrTest();
   while (size) {
     *dest = getTrueRotateRandomByte();
     ++dest;
