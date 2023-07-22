@@ -1,0 +1,13 @@
+newmtl material_1
+    map_Kd texgen_0.png
+    Ks 0
+    map_ao 1
+    subsurface 0
+    metallic 0
+    specularTint 0
+    map_roughness 1
+    anisotropicRotation 0
+    sheen 0.05
+    sheenTint 0
+    clearCoat 0
+    clearCoatGloss 0
