@@ -1,0 +1,920 @@
+	|-------------------------------------------------------------|
+	|           This is the BIRTHDAY SPACINGS TEST                |
+	|Choose m birthdays in a "year" of n days.  List the spacings |
+	|between the birthdays.  Let j be the number of values that   |
+	|occur more than once in that list, then j is asymptotically  |
+	|Poisson distributed with mean m^3/(4n).  Experience shows n  |
+	|must be quite large, say n>=2^18, for comparing the results  |
+	|to the Poisson distribution with that mean.  This test uses  |
+	|n=2^24 and m=2^10, so that the underlying distribution for j |
+	|is taken to be Poisson with lambda=2^30/(2^26)=16. A sample  |
+	|of 200 j''s is taken, and a chi-square goodness of fit test  |
+	|provides a p value.  The first test uses bits 1-24 (counting |
+	|from the left) from integers in the specified file.  Then the|
+	|file is closed and reopened, then bits 2-25 of the same inte-|
+	|gers are used to provide birthdays, and so on to bits 9-32.  |
+	|Each set of bits provides a p-value, and the nine p-values   |
+	|provide a sample for a KSTEST.                               |
+	|------------------------------------------------------------ |
+
+		RESULTS OF BIRTHDAY SPACINGS TEST FOR /Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno
+	(no_bdays=1024, no_days/yr=2^24, lambda=16.00, sample size=500)
+
+	Bits used	mean		chisqr		p-value
+	 1 to 24	16.10		14.5126		0.630544
+	 2 to 25	15.89		11.5500		0.826587
+	 3 to 26	15.59		25.2746		0.088729
+	 4 to 27	15.59		23.7636		0.126003
+	 5 to 28	15.68		20.2591		0.261191
+	 6 to 29	15.68		12.4330		0.773239
+	 7 to 30	15.76		23.0397		0.147962
+	 8 to 31	15.91		21.4002		0.208897
+	 9 to 32	15.82		22.9792		0.149929
+
+			degree of freedoms is: 17
+	---------------------------------------------------------------
+		p-value for KStest on those 9 p-values: 0.134947
+
+
+	|-------------------------------------------------------------|
+	|           THE OVERLAPPING 5-PERMUTATION TEST                |
+	|This is the OPERM5 test.  It looks at a sequence of one mill-|
+	|ion 32-bit random integers.  Each set of five consecutive    |
+	|integers can be in one of 120 states, for the 5! possible or-|
+	|derings of five numbers.  Thus the 5th, 6th, 7th,...numbers  |
+	|each provide a state. As many thousands of state transitions |
+	|are observed,  cumulative counts are made of the number of   |
+	|occurences of each state.  Then the quadratic form in the    |
+	|weak inverse of the 120x120 covariance matrix yields a test  |
+	|equivalent to the likelihood ratio test that the 120 cell    |
+	|counts came from the specified (asymptotically) normal dis-  |
+	|tribution with the specified 120x120 covariance matrix (with |
+	|rank 99).  This version uses 1,000,000 integers, twice.      |
+	|-------------------------------------------------------------|
+
+			OPERM5 test for file /Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno
+		  (For samples of 1,000,000 consecutive 5-tuples)
+
+			  sample 1 
+	chisquare=90.610405 with df=99; p-value= 0.714373
+	_______________________________________________________________
+
+			  sample 2 
+	chisquare=107.212192 with df=99; p-value= 0.269179
+	_______________________________________________________________
+
+
+	|-------------------------------------------------------------|
+	|This is the BINARY RANK TEST for 31x31 matrices. The leftmost|
+	|31 bits of 31 random integers from the test sequence are used|
+	|to form a 31x31 binary matrix over the field {0,1}. The rank |
+	|is determined. That rank can be from 0 to 31, but ranks< 28  |
+	|are rare, and their counts are pooled with those for rank 28.|
+	|Ranks are found for 40,000 such random matrices and a chisqu-|
+	|are test is performed on counts for ranks 31,30,28 and <=28. |
+	|-------------------------------------------------------------|
+		Rank test for binary matrices (31x31) from 
+/Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=28	224         	211.4       	0.749       	0.749       
+	r=29	5040        	5134.0      	1.721       	2.470       
+	r=30	23167       	23103.0     	0.177       	2.647       
+	r=31	11569       	11551.5     	0.026       	2.674       
+
+		chi-square = 2.674 with df = 3;  p-value = 0.445
+	--------------------------------------------------------------
+
+	|-------------------------------------------------------------|
+	|This is the BINARY RANK TEST for 32x32 matrices. A random 32x|
+	|32 binary matrix is formed, each row a 32-bit random integer.|
+	|The rank is determined. That rank can be from 0 to 32, ranks |
+	|less than 29 are rare, and their counts are pooled with those|
+	|for rank 29.  Ranks are found for 40,000 such random matrices|
+	|and a chisquare test is performed on counts for ranks  32,31,|
+	|30 and <=29.                                                 |
+	|-------------------------------------------------------------|
+		Rank test for binary matrices (32x32) from 
+/Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=29	208         	211.4       	0.055       	0.055       
+	r=30	5146        	5134.0      	0.028       	0.083       
+	r=31	23184       	23103.0     	0.284       	0.367       
+	r=32	11462       	11551.5     	0.694       	1.061       
+
+		chi-square = 1.061 with df = 3;  p-value = 0.787
+	--------------------------------------------------------------
+
+	|-------------------------------------------------------------|
+	|This is the BINARY RANK TEST for 6x8 matrices.  From each of |
+	|six random 32-bit integers from the generator under test, a  |
+	|specified byte is chosen, and the resulting six bytes form a |
+	|6x8 binary matrix whose rank is determined.  That rank can be|
+	|from 0 to 6, but ranks 0,1,2,3 are rare; their counts are    |
+	|pooled with those for rank 4. Ranks are found for 100,000    |
+	|random matrices, and a chi-square test is performed on       |
+	|counts for ranks 6,5 and (0,...,4) (pooled together).        |
+	|-------------------------------------------------------------|
+
+		Rank test for binary matrices (6x8) from /Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno
+
+			      bits  1 to  8
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	947         	944.3       	0.008       	0.008       
+	r=5	21739       	21743.9     	0.001       	0.009       
+	r=6	77314       	77311.8     	0.000       	0.009       
+
+		chi-square = 0.009 with df = 2;  p-value = 0.996
+	--------------------------------------------------------------
+
+			      bits  2 to  9
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	896         	944.3       	2.470       	2.470       
+	r=5	21728       	21743.9     	0.012       	2.482       
+	r=6	77376       	77311.8     	0.053       	2.535       
+
+		chi-square = 2.535 with df = 2;  p-value = 0.281
+	--------------------------------------------------------------
+
+			      bits  3 to 10
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	885         	944.3       	3.724       	3.724       
+	r=5	21654       	21743.9     	0.372       	4.096       
+	r=6	77461       	77311.8     	0.288       	4.384       
+
+		chi-square = 4.384 with df = 2;  p-value = 0.112
+	--------------------------------------------------------------
+
+			      bits  4 to 11
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	999         	944.3       	3.169       	3.169       
+	r=5	21666       	21743.9     	0.279       	3.448       
+	r=6	77335       	77311.8     	0.007       	3.455       
+
+		chi-square = 3.455 with df = 2;  p-value = 0.178
+	--------------------------------------------------------------
+
+			      bits  5 to 12
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	925         	944.3       	0.394       	0.394       
+	r=5	21763       	21743.9     	0.017       	0.411       
+	r=6	77312       	77311.8     	0.000       	0.411       
+
+		chi-square = 0.411 with df = 2;  p-value = 0.814
+	--------------------------------------------------------------
+
+			      bits  6 to 13
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	940         	944.3       	0.020       	0.020       
+	r=5	21754       	21743.9     	0.005       	0.024       
+	r=6	77306       	77311.8     	0.000       	0.025       
+
+		chi-square = 0.025 with df = 2;  p-value = 0.988
+	--------------------------------------------------------------
+
+			      bits  7 to 14
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	931         	944.3       	0.187       	0.187       
+	r=5	21834       	21743.9     	0.373       	0.561       
+	r=6	77235       	77311.8     	0.076       	0.637       
+
+		chi-square = 0.637 with df = 2;  p-value = 0.727
+	--------------------------------------------------------------
+
+			      bits  8 to 15
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	929         	944.3       	0.248       	0.248       
+	r=5	21749       	21743.9     	0.001       	0.249       
+	r=6	77322       	77311.8     	0.001       	0.250       
+
+		chi-square = 0.250 with df = 2;  p-value = 0.882
+	--------------------------------------------------------------
+
+			      bits  9 to 16
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	956         	944.3       	0.145       	0.145       
+	r=5	21660       	21743.9     	0.324       	0.469       
+	r=6	77384       	77311.8     	0.067       	0.536       
+
+		chi-square = 0.536 with df = 2;  p-value = 0.765
+	--------------------------------------------------------------
+
+			      bits 10 to 17
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	959         	944.3       	0.229       	0.229       
+	r=5	21800       	21743.9     	0.145       	0.374       
+	r=6	77241       	77311.8     	0.065       	0.438       
+
+		chi-square = 0.438 with df = 2;  p-value = 0.803
+	--------------------------------------------------------------
+
+			      bits 11 to 18
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	922         	944.3       	0.527       	0.527       
+	r=5	21621       	21743.9     	0.695       	1.221       
+	r=6	77457       	77311.8     	0.273       	1.494       
+
+		chi-square = 1.494 with df = 2;  p-value = 0.474
+	--------------------------------------------------------------
+
+			      bits 12 to 19
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	921         	944.3       	0.575       	0.575       
+	r=5	21901       	21743.9     	1.135       	1.710       
+	r=6	77178       	77311.8     	0.232       	1.942       
+
+		chi-square = 1.942 with df = 2;  p-value = 0.379
+	--------------------------------------------------------------
+
+			      bits 13 to 20
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	968         	944.3       	0.595       	0.595       
+	r=5	21932       	21743.9     	1.627       	2.222       
+	r=6	77100       	77311.8     	0.580       	2.802       
+
+		chi-square = 2.802 with df = 2;  p-value = 0.246
+	--------------------------------------------------------------
+
+			      bits 14 to 21
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	978         	944.3       	1.203       	1.203       
+	r=5	21860       	21743.9     	0.620       	1.823       
+	r=6	77162       	77311.8     	0.290       	2.113       
+
+		chi-square = 2.113 with df = 2;  p-value = 0.348
+	--------------------------------------------------------------
+
+			      bits 15 to 22
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	981         	944.3       	1.426       	1.426       
+	r=5	21722       	21743.9     	0.022       	1.448       
+	r=6	77297       	77311.8     	0.003       	1.451       
+
+		chi-square = 1.451 with df = 2;  p-value = 0.484
+	--------------------------------------------------------------
+
+			      bits 16 to 23
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	921         	944.3       	0.575       	0.575       
+	r=5	21976       	21743.9     	2.477       	3.052       
+	r=6	77103       	77311.8     	0.564       	3.616       
+
+		chi-square = 3.616 with df = 2;  p-value = 0.164
+	--------------------------------------------------------------
+
+			      bits 17 to 24
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	959         	944.3       	0.229       	0.229       
+	r=5	21808       	21743.9     	0.189       	0.418       
+	r=6	77233       	77311.8     	0.080       	0.498       
+
+		chi-square = 0.498 with df = 2;  p-value = 0.780
+	--------------------------------------------------------------
+
+			      bits 18 to 25
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	924         	944.3       	0.436       	0.436       
+	r=5	21722       	21743.9     	0.022       	0.458       
+	r=6	77354       	77311.8     	0.023       	0.481       
+
+		chi-square = 0.481 with df = 2;  p-value = 0.786
+	--------------------------------------------------------------
+
+			      bits 19 to 26
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	979         	944.3       	1.275       	1.275       
+	r=5	21543       	21743.9     	1.856       	3.131       
+	r=6	77478       	77311.8     	0.357       	3.489       
+
+		chi-square = 3.489 with df = 2;  p-value = 0.175
+	--------------------------------------------------------------
+
+			      bits 20 to 27
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	927         	944.3       	0.317       	0.317       
+	r=5	21631       	21743.9     	0.586       	0.903       
+	r=6	77442       	77311.8     	0.219       	1.122       
+
+		chi-square = 1.122 with df = 2;  p-value = 0.571
+	--------------------------------------------------------------
+
+			      bits 21 to 28
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	866         	944.3       	6.493       	6.493       
+	r=5	21737       	21743.9     	0.002       	6.495       
+	r=6	77397       	77311.8     	0.094       	6.589       
+
+		chi-square = 6.589 with df = 2;  p-value = 0.037
+	--------------------------------------------------------------
+
+			      bits 22 to 29
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	913         	944.3       	1.037       	1.037       
+	r=5	21590       	21743.9     	1.089       	2.127       
+	r=6	77497       	77311.8     	0.444       	2.570       
+
+		chi-square = 2.570 with df = 2;  p-value = 0.277
+	--------------------------------------------------------------
+
+			      bits 23 to 30
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	853         	944.3       	8.827       	8.827       
+	r=5	21721       	21743.9     	0.024       	8.851       
+	r=6	77426       	77311.8     	0.169       	9.020       
+
+		chi-square = 9.020 with df = 2;  p-value = 0.011
+	--------------------------------------------------------------
+
+			      bits 24 to 31
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	913         	944.3       	1.037       	1.037       
+	r=5	21625       	21743.9     	0.650       	1.688       
+	r=6	77462       	77311.8     	0.292       	1.979       
+
+		chi-square = 1.979 with df = 2;  p-value = 0.372
+	--------------------------------------------------------------
+
+			      bits 25 to 32
+
+	RANK	OBSERVED	EXPECTED	(O-E)^2/E	SUM
+
+	r<=4	983         	944.3       	1.586       	1.586       
+	r=5	21702       	21743.9     	0.081       	1.667       
+	r=6	77315       	77311.8     	0.000       	1.667       
+
+		chi-square = 1.667 with df = 2;  p-value = 0.435
+	--------------------------------------------------------------
+	    TEST SUMMARY, 25 tests on 100,000 random 6x8 matrices
+	    These should be 25 uniform [0,1] random variates:
+ 
+	0.995566    	0.281473    	0.111719    	0.177761    	0.814143     
+	0.987722    	0.727253    	0.882303    	0.764861    	0.803156     
+	0.473792    	0.378794    	0.246319    	0.347698    	0.484027     
+	0.163955    	0.779534    	0.786042    	0.174768    	0.570519     
+	0.037094    	0.276595    	0.010997    	0.371678    	0.434546    
+		The KS test for those 25 supposed UNI's yields
+			KS p-value = 0.832916
+
+	|-------------------------------------------------------------|
+	|                  THE BITSTREAM TEST                         |
+	|The file under test is viewed as a stream of bits. Call them |
+	|b1,b2,... .  Consider an alphabet with two "letters", 0 and 1|
+	|and think of the stream of bits as a succession of 20-letter |
+	|"words", overlapping.  Thus the first word is b1b2...b20, the|
+	|second is b2b3...b21, and so on.  The bitstream test counts  |
+	|the number of missing 20-letter (20-bit) words in a string of|
+	|2^21 overlapping 20-letter words.  There are 2^20 possible 20|
+	|letter words.  For a truly random string of 2^21+19 bits, the|
+	|number of missing words j should be (very close to) normally |
+	|distributed with mean 141,909 and sigma 428.  Thus           |
+	| (j-141909)/428 should be a standard normal variate (z score)|
+	|that leads to a uniform [0,1) p value.  The test is repeated |
+	|twenty times.                                                |
+	|-------------------------------------------------------------|
+
+		THE OVERLAPPING 20-TUPLES BITSTREAM  TEST for 
+/Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno
+	 (20 bits/word, 2097152 words 20 bitstreams. No. missing words 
+	  should average 141909.33 with sigma=428.00.)
+	----------------------------------------------------------------
+		   BITSTREAM test results for /Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno.
+
+	Bitstream	No. missing words	z-score		p-value
+	   1		141106 			-1.88		0.969737
+	   2		141011 			-2.10		0.982087
+	   3		141268 			-1.50		0.932990
+	   4		142108 			 0.46		0.321259
+	   5		141603 			-0.72		0.762919
+	   6		142440 			 1.24		0.107509
+	   7		141761 			-0.35		0.635541
+	   8		142079 			 0.40		0.345896
+	   9		141206 			-1.64		0.949839
+	   10		141923 			 0.03		0.487260
+	   11		142448 			 1.26		0.104092
+	   12		142092 			 0.43		0.334763
+	   13		141763 			-0.34		0.633784
+	   14		141877 			-0.08		0.530106
+	   15		141981 			 0.17		0.433507
+	   16		140963 			-2.21		0.986484
+	   17		142210 			 0.70		0.241184
+	   18		142325 			 0.97		0.165726
+	   19		142061 			 0.35		0.361531
+	   20		140933 			-2.28		0.988730
+	----------------------------------------------------------------
+
+	|-------------------------------------------------------------|
+	|        OPSO means Overlapping-Pairs-Sparse-Occupancy        |
+	|The OPSO test considers 2-letter words from an alphabet of   |
+	|1024 letters.  Each letter is determined by a specified ten  |
+	|bits from a 32-bit integer in the sequence to be tested. OPSO|
+	|generates  2^21 (overlapping) 2-letter words  (from 2^21+1   |
+	|"keystrokes")  and counts the number of missing words---that |
+	|is 2-letter words which do not appear in the entire sequence.|
+	|That count should be very close to normally distributed with |
+	|mean 141,909, sigma 290. Thus (missingwrds-141909)/290 should|
+	|be a standard normal variable. The OPSO test takes 32 bits at|
+	|a time from the test file and uses a designated set of ten   |
+	|consecutive bits. It then restarts the file for the next de- |
+	|signated 10 bits, and so on.                                 |
+	|------------------------------------------------------------ |
+
+			   OPSO test for file /Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno
+
+	Bits used	No. missing words	z-score		p-value
+	23 to 32  		141571 		-1.1667		0.878325
+	22 to 31  		141670 		-0.8253		0.795392
+	21 to 30  		141988 		 0.2713		0.393089
+	20 to 29  		142046 		 0.4713		0.318722
+	19 to 28  		141809 		-0.3460		0.635316
+	18 to 27  		141495 		-1.4287		0.923458
+	17 to 26  		141549 		-1.2425		0.892977
+	16 to 25  		142386 		 1.6437		0.050120
+	15 to 24  		142145 		 0.8127		0.208208
+	14 to 23  		142327 		 1.4402		0.074900
+	13 to 22  		141449 		-1.5873		0.943783
+	12 to 21  		141898 		-0.0391		0.515582
+	11 to 20  		141806 		-0.3563		0.639196
+	10 to 19  		141795 		-0.3942		0.653299
+	9 to 18  		140904 		-3.4667		0.999737
+	8 to 17  		141217 		-2.3873		0.991515
+	7 to 16  		141671 		-0.8218		0.794412
+	6 to 15  		141504 		-1.3977		0.918897
+	5 to 14  		141499 		-1.4149		0.921456
+	4 to 13  		141982 		 0.2506		0.401067
+	3 to 12  		141740 		-0.5839		0.720355
+	2 to 11  		141599 		-1.0701		0.857714
+	1 to 10  		141867 		-0.1460		0.558026
+	-----------------------------------------------------------------
+
+	|------------------------------------------------------------ |
+	|    OQSO means Overlapping-Quadruples-Sparse-Occupancy       |
+	|  The test OQSO is similar, except that it considers 4-letter|
+	|words from an alphabet of 32 letters, each letter determined |
+	|by a designated string of 5 consecutive bits from the test   |
+	|file, elements of which are assumed 32-bit random integers.  |
+	|The mean number of missing words in a sequence of 2^21 four- |
+	|letter words,  (2^21+3 "keystrokes"), is again 141909, with  |
+	|sigma = 295.  The mean is based on theory; sigma comes from  |
+	|extensive simulation.                                        |
+	|------------------------------------------------------------ |
+
+			   OQSO test for file /Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno
+
+	Bits used	No. missing words	z-score		p-value
+	28 to 32  		141853 		-0.1909		0.575717
+	27 to 31  		141111 		-2.7062		0.996597
+	26 to 30  		141526 		-1.2994		0.903101
+	25 to 29  		141768 		-0.4791		0.684061
+	24 to 28  		142556 		 2.1921		0.014186
+	23 to 27  		142434 		 1.7785		0.037657
+	22 to 26  		141737 		-0.5842		0.720447
+	21 to 25  		141660 		-0.8452		0.800997
+	20 to 24  		141697 		-0.7198		0.764164
+	19 to 23  		142212 		 1.0260		0.152446
+	18 to 22  		142392 		 1.6362		0.050902
+	17 to 21  		142196 		 0.9718		0.165584
+	16 to 20  		142064 		 0.5243		0.300033
+	15 to 19  		141742 		-0.5672		0.714718
+	14 to 18  		141526 		-1.2994		0.903101
+	13 to 17  		141501 		-1.3842		0.916847
+	12 to 16  		141424 		-1.6452		0.950034
+	11 to 15  		142108 		 0.6735		0.250328
+	10 to 14  		142035 		 0.4260		0.335054
+	9 to 13  		141810 		-0.3367		0.631833
+	8 to 12  		141570 		-1.1503		0.874984
+	7 to 11  		141788 		-0.4113		0.659569
+	6 to 10  		142396 		 1.6497		0.049499
+	5 to 9  		142338 		 1.4531		0.073095
+	4 to 8  		141819 		-0.3062		0.620275
+	3 to 7  		142592 		 2.3141		0.010330
+	2 to 6  		142185 		 0.9345		0.175030
+	1 to 5  		142070 		 0.5446		0.292999
+	-----------------------------------------------------------------
+
+	|------------------------------------------------------------ |
+	|    The DNA test considers an alphabet of 4 letters: C,G,A,T,|
+	|determined by two designated bits in the sequence of random  |
+	|integers being tested.  It considers 10-letter words, so that|
+	|as in OPSO and OQSO, there are 2^20 possible words, and the  |
+	|mean number of missing words from a string of 2^21  (over-   |
+	|lapping)  10-letter  words (2^21+9 "keystrokes") is 141909.  |
+	|The standard deviation sigma=339 was determined as for OQSO  |
+	|by simulation.  (Sigma for OPSO, 290, is the true value (to  |
+	|three places), not determined by simulation.                 |
+	|------------------------------------------------------------ |
+
+			   DNA test for file /Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno
+
+	Bits used	No. missing words	z-score		p-value
+	31 to 32  		141748 		-0.4759		0.682927
+	30 to 31  		142309 		 1.1790		0.119206
+	29 to 30  		142068 		 0.4681		0.319873
+	28 to 29  		141571 		-0.9980		0.840866
+	27 to 28  		142551 		 1.8928		0.029190
+	26 to 27  		142945 		 3.0551		0.001125
+	25 to 26  		142304 		 1.1642		0.122168
+	24 to 25  		142269 		 1.0610		0.144351
+	23 to 24  		141577 		-0.9803		0.836537
+	22 to 23  		141201 		-2.0895		0.981667
+	21 to 22  		142079 		 0.5005		0.308361
+	20 to 21  		141701 		-0.6145		0.730572
+	19 to 20  		141470 		-1.2960		0.902505
+	18 to 19  		141272 		-1.8800		0.969948
+	17 to 18  		142098 		 0.5565		0.288918
+	16 to 17  		142001 		 0.2704		0.393421
+	15 to 16  		141059 		-2.5083		0.993935
+	14 to 15  		142214 		 0.8987		0.184398
+	13 to 14  		142577 		 1.9695		0.024446
+	12 to 13  		141474 		-1.2842		0.900457
+	11 to 12  		141664 		-0.7237		0.765371
+	10 to 11  		142022 		 0.3324		0.369809
+	9 to 10  		141789 		-0.3550		0.638689
+	8 to 9  		141680 		-0.6765		0.750635
+	7 to 8  		142320 		 1.2114		0.112868
+	6 to 7  		142174 		 0.7807		0.217478
+	5 to 6  		141362 		-1.6145		0.946795
+	4 to 5  		141941 		 0.0934		0.462784
+	3 to 4  		141341 		-1.6765		0.953179
+	2 to 3  		142308 		 1.1760		0.119794
+	1 to 2  		142031 		 0.3589		0.359832
+	-----------------------------------------------------------------
+
+	|-------------------------------------------------------------|
+	|    This is the COUNT-THE-1''s TEST on a stream of bytes.    |
+	|Consider the file under test as a stream of bytes (four per  |
+	|32 bit integer).  Each byte can contain from 0 to 8 1''s,    |
+	|with probabilities 1,8,28,56,70,56,28,8,1 over 256.  Now let |
+	|the stream of bytes provide a string of overlapping  5-letter|
+	|words, each "letter" taking values A,B,C,D,E. The letters are|
+	|determined by the number of 1''s in a byte: 0,1,or 2 yield A,|
+	|3 yields B, 4 yields C, 5 yields D and 6,7 or 8 yield E. Thus|
+	|we have a monkey at a typewriter hitting five keys with vari-|
+	|ous probabilities (37,56,70,56,37 over 256).  There are 5^5  |
+	|possible 5-letter words, and from a string of 256,000 (over- |
+	|lapping) 5-letter words, counts are made on the frequencies  |
+	|for each word.   The quadratic form in the weak inverse of   |
+	|the covariance matrix of the cell counts provides a chisquare|
+	|test: Q5-Q4, the difference of the naive Pearson sums of     |
+	|(OBS-EXP)^2/EXP on counts for 5- and 4-letter cell counts.   |
+	|-------------------------------------------------------------|
+
+		Test result for the byte stream from /Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno
+	  (Degrees of freedom: 5^4-5^3=2500; sample size: 2560000)
+
+			chisquare	z-score		p-value
+			2530.04		 0.425		0.335504
+
+	|-------------------------------------------------------------|
+	|    This is the COUNT-THE-1''s TEST for specific bytes.      |
+	|Consider the file under test as a stream of 32-bit integers. |
+	|From each integer, a specific byte is chosen , say the left- |
+	|most: bits 1 to 8. Each byte can contain from 0 to 8 1''s,   |
+	|with probabilitie 1,8,28,56,70,56,28,8,1 over 256.  Now let  |
+	|the specified bytes from successive integers provide a string|
+	|of (overlapping) 5-letter words, each "letter" taking values |
+	|A,B,C,D,E. The letters are determined  by the number of 1''s,|
+	|in that byte: 0,1,or 2 ---> A, 3 ---> B, 4 ---> C, 5 ---> D, |
+	|and  6,7 or 8 ---> E.  Thus we have a monkey at a typewriter |
+	|hitting five keys with with various probabilities: 37,56,70, |
+	|56,37 over 256. There are 5^5 possible 5-letter words, and   |
+	|from a string of 256,000 (overlapping) 5-letter words, counts|
+	|are made on the frequencies for each word. The quadratic form|
+	|in the weak inverse of the covariance matrix of the cell     |
+	|counts provides a chisquare test: Q5-Q4, the difference of   |
+	|the naive Pearson  sums of (OBS-EXP)^2/EXP on counts for 5-  |
+	|and 4-letter cell  counts.                                   |
+	|-------------------------------------------------------------|
+
+		Test results for specific bytes from /Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno
+	  (Degrees of freedom: 5^4-5^3=2500; sample size: 256000)
+
+	bits used	chisquare	z-score		p-value
+	1 to 8  	2425.59		-1.052		0.853662
+	2 to 9  	2519.04		 0.269		0.393852
+	3 to 10  	2493.48		-0.092		0.536712
+	4 to 11  	2591.07		 1.288		0.098888
+	5 to 12  	2467.34		-0.462		0.677940
+	6 to 13  	2568.03		 0.962		0.167995
+	7 to 14  	2600.67		 1.424		0.077274
+	8 to 15  	2611.08		 1.571		0.058100
+	9 to 16  	2470.25		-0.421		0.663047
+	10 to 17  	2521.21		 0.300		0.382129
+	11 to 18  	2496.76		-0.046		0.518272
+	12 to 19  	2536.34		 0.514		0.303649
+	13 to 20  	2557.85		 0.818		0.206662
+	14 to 21  	2419.24		-1.142		0.873283
+	15 to 22  	2497.80		-0.031		0.512432
+	16 to 23  	2544.95		 0.636		0.262506
+	17 to 24  	2510.36		 0.147		0.441737
+	18 to 25  	2551.29		 0.725		0.234120
+	19 to 26  	2567.59		 0.956		0.169583
+	20 to 27  	2426.39		-1.041		0.851063
+	21 to 28  	2541.91		 0.593		0.276690
+	22 to 29  	2497.23		-0.039		0.515608
+	23 to 30  	2546.94		 0.664		0.253403
+	24 to 31  	2363.02		-1.937		0.973639
+	25 to 32  	2539.59		 0.560		0.287780
+	|-------------------------------------------------------------|
+	|              THIS IS A PARKING LOT TEST                     |
+	|In a square of side 100, randomly "park" a car---a circle of |
+	|radius 1.   Then try to park a 2nd, a 3rd, and so on, each   |
+	|time parking "by ear".  That is, if an attempt to park a car |
+	|causes a crash with one already parked, try again at a new   |
+	|random location. (To avoid path problems, consider parking   |
+	|helicopters rather than cars.)   Each attempt leads to either|
+	|a crash or a success, the latter followed by an increment to |
+	|the list of cars already parked. If we plot n: the number of |
+	|attempts, versus k: the number successfully parked, we get a |
+	|curve that should be similar to those provided by a perfect  |
+	|random number generator.  Theory for the behavior of such a  |
+	|random curve seems beyond reach, and as graphics displays are|
+	|not available for this battery of tests, a simple characteriz|
+	|ation of the random experiment is used: k, the number of cars|
+	|successfully parked after n=12,000 attempts. Simulation shows|
+	|that k should average 3523 with sigma 21.9 and is very close |
+	|to normally distributed.  Thus (k-3523)/21.9 should be a st- |
+	|andard normal variable, which, converted to a uniform varia- |
+	|ble, provides input to a KSTEST based on a sample of 10.     |
+	|-------------------------------------------------------------|
+
+		CDPARK: result of 10 tests on file /Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno
+	  (Of 12000 tries, the average no. of successes should be 
+	   3523.0 with sigma=21.9)
+
+	   No. succeses		z-score		p-value
+		3554		 1.4155		0.078457
+		3507		-0.7306		0.767486
+		3546		 1.0502		0.146807
+		3507		-0.7306		0.767486
+		3505		-0.8219		0.794438
+		3502		-0.9589		0.831196
+		3514		-0.4110		0.659449
+		3547		 1.0959		0.136563
+		3512		-0.5023		0.692266
+		3542		 0.8676		0.192812
+	  Square side=100, avg. no. parked=3523.60 sample std.=19.75
+	     p-value of the KSTEST for those 10 p-values: 0.000000
+
+
+	|-------------------------------------------------------------|
+	|              THE MINIMUM DISTANCE TEST                      |
+	|It does this 100 times:  choose n=8000 random points in a    |
+	|square of side 10000.  Find d, the minimum distance between  |
+	|the (n^2-n)/2 pairs of points.  If the points are truly inde-|
+	|pendent uniform, then d^2, the square of the minimum distance|
+	|should be (very close to) exponentially distributed with mean|
+	|.995 .  Thus 1-exp(-d^2/.995) should be uniform on [0,1) and |
+	|a KSTEST on the resulting 100 values serves as a test of uni-|
+	|formity for random points in the square. Test numbers=0 mod 5|
+	|are printed but the KSTEST is based on the full set of 100   |
+	|random choices of 8000 points in the 10000x10000 square.     |
+	|-------------------------------------------------------------|
+
+		This is the MINIMUM DISTANCE test for file 
+/Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno
+
+	Sample no.	 d^2		 mean		equiv uni
+	   5		0.6681		1.0180		0.489062
+	   10		0.2720		0.7245		0.239180
+	   15		0.2016		0.5767		0.183427
+	   20		0.2313		0.5637		0.207440
+	   25		2.6478		0.7507		0.930127
+	   30		0.0982		0.7874		0.093944
+	   35		1.3476		0.8872		0.741895
+	   40		0.1150		0.8705		0.109173
+	   45		0.5281		0.8366		0.411820
+	   50		0.4078		0.8005		0.336230
+	   55		1.3970		0.8514		0.754385
+	   60		2.1194		0.8914		0.881174
+	   65		1.0914		0.9245		0.666075
+	   70		0.8783		0.9129		0.586341
+	   75		0.4384		0.8925		0.356375
+	   80		0.1799		0.8902		0.165378
+	   85		0.2944		0.8720		0.256122
+	   90		2.0855		0.8927		0.877047
+	   95		0.5500		0.8838		0.424645
+	   100		3.3640		0.9017		0.965985
+	--------------------------------------------------------------
+	Result of KS test on 100 transformed mindist^2's: p-value=0.406359
+
+
+	|-------------------------------------------------------------|
+	|             THE 3DSPHERES TEST                              |
+	|Choose  4000 random points in a cube of edge 1000.  At each  |
+	|point, center a sphere large enough to reach the next closest|
+	|point. Then the volume of the smallest such sphere is (very  |
+	|close to) exponentially distributed with mean 120pi/3.  Thus |
+	|the radius cubed is exponential with mean 30. (The mean is   |
+	|obtained by extensive simulation).  The 3DSPHERES test gener-|
+	|ates 4000 such spheres 20 times.  Each min radius cubed leads|
+	|to a uniform variable by means of 1-exp(-r^3/30.), then a    |
+	| KSTEST is done on the 20 p-values.                          |
+	|-------------------------------------------------------------|
+
+		    The 3DSPHERES test for file /Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno
+
+		sample no	r^3		equiv. uni.
+		   1		42.159		0.754705
+		   2		18.362		0.457766
+		   3		14.524		0.383766
+		   4		83.190		0.937526
+		   5		4.573		0.141380
+		   6		21.776		0.516101
+		   7		22.336		0.525041
+		   8		14.578		0.384873
+		   9		43.052		0.761901
+		   10		36.575		0.704522
+		   11		25.668		0.574966
+		   12		13.784		0.368378
+		   13		49.716		0.809329
+		   14		43.746		0.767343
+		   15		17.954		0.450353
+		   16		28.999		0.619642
+		   17		3.411		0.107464
+		   18		13.630		0.365138
+		   19		31.752		0.652989
+		   20		24.299		0.555124
+	--------------------------------------------------------------
+		p-value for KS test on those 20 p-values: 0.263352
+
+
+	|-------------------------------------------------------------|
+	|                 This is the SQUEEZE test                    |
+	| Random integers are floated to get uniforms on [0,1). Start-|
+	| ing with k=2^31=2147483647, the test finds j, the number of |
+	| iterations necessary to reduce k to 1, using the reduction  |
+	| k=ceiling(k*U), with U provided by floating integers from   |
+	| the file being tested.  Such j''s are found 100,000 times,  |
+	| then counts for the number of times j was <=6,7,...,47,>=48 |
+	| are used to provide a chi-square test for cell frequencies. |
+	|-------------------------------------------------------------|
+
+			RESULTS OF SQUEEZE TEST FOR /Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno
+
+		    Table of standardized frequency counts
+		(obs-exp)^2/exp  for j=(1,..,6), 7,...,47,(48,...)
+		-0.8  	-0.3  	-0.6  	 1.1  	 1.2  	 0.6  
+		 0.2  	 0.1  	-2.5  	-0.5  	-0.2  	 0.7  
+		 1.0  	 0.4  	-0.4  	-0.6  	 1.0  	-0.3  
+		 0.6  	-0.5  	-0.2  	-0.8  	 0.0  	-0.1  
+		 0.7  	-0.6  	 0.2  	 0.7  	 1.1  	 0.1  
+		-0.6  	-2.0  	 1.2  	-0.5  	-0.8  	 0.2  
+		 1.4  	 0.2  	-0.4  	 0.4  	-1.3  	-1.0  
+		-0.1  
+		Chi-square with 42 degrees of freedom:29.267489
+		z-score=-1.389231, p-value=0.931416
+	_____________________________________________________________
+
+
+	|-------------------------------------------------------------|
+	|            The  OVERLAPPING SUMS test                       |
+	|Integers are floated to get a sequence U(1),U(2),... of uni- |
+	|form [0,1) variables.  Then overlapping sums,                |
+	|  S(1)=U(1)+...+U(100), S2=U(2)+...+U(101),... are formed.   |
+	|The S''s are virtually normal with a certain covariance mat- |
+	|rix.  A linear transformation of the S''s converts them to a |
+	|sequence of independent standard normals, which are converted|
+	|to uniform variables for a KSTEST.                           |
+	|-------------------------------------------------------------|
+
+			Results of the OSUM test for /Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno
+
+			Test no			p-value
+			  1 			0.020511
+			  2 			0.005212
+			  3 			0.616657
+			  4 			0.548873
+			  5 			0.026726
+			  6 			0.024334
+			  7 			0.680327
+			  8 			0.561676
+			  9 			0.101542
+			  10 			0.041334
+	_____________________________________________________________
+
+		p-value for 10 kstests on 100 kstests:0.000701
+
+	|-------------------------------------------------------------|
+	|    This is the RUNS test.  It counts runs up, and runs down,|
+	|in a sequence of uniform [0,1) variables, obtained by float- |
+	|ing the 32-bit integers in the specified file. This example  |
+	|shows how runs are counted: .123,.357,.789,.425,.224,.416,.95|
+	|contains an up-run of length 3, a down-run of length 2 and an|
+	|up-run of (at least) 2, depending on the next values.  The   |
+	|covariance matrices for the runs-up and runs-down are well   |
+	|known, leading to chisquare tests for quadratic forms in the |
+	|weak inverses of the covariance matrices.  Runs are counted  |
+	|for sequences of length 10,000.  This is done ten times. Then|
+	|another three sets of ten.                                   |
+	|-------------------------------------------------------------|
+
+			The RUNS test for file /Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno
+		(Up and down runs in a sequence of 10000 numbers)
+				Set 1
+		 runs up; ks test for 10 p's: 0.594072
+		 runs down; ks test for 10 p's: 0.026163
+				Set 2
+		 runs up; ks test for 10 p's: 0.627416
+		 runs down; ks test for 10 p's: 0.566856
+
+	|-------------------------------------------------------------|
+	|This the CRAPS TEST.  It plays 200,000 games of craps, counts|
+	|the number of wins and the number of throws necessary to end |
+	|each game.  The number of wins should be (very close to) a   |
+	|normal with mean 200000p and variance 200000p(1-p), and      |
+	|p=244/495.  Throws necessary to complete the game can vary   |
+	|from 1 to infinity, but counts for all>21 are lumped with 21.|
+	|A chi-square test is made on the no.-of-throws cell counts.  |
+	|Each 32-bit integer from the test file provides the value for|
+	|the throw of a die, by floating to [0,1), multiplying by 6   |
+	|and taking 1 plus the integer part of the result.            |
+	|-------------------------------------------------------------|
+
+		RESULTS OF CRAPS TEST FOR /Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno 
+	No. of wins:  Observed	Expected
+	                 98627        98585.858586
+		z-score= 0.184, pvalue=0.42700
+
+	Analysis of Throws-per-Game:
+
+	Throws	Observed	Expected	Chisq	 Sum of (O-E)^2/E
+	1	66400		66666.7		1.067		1.067
+	2	37459		37654.3		1.013		2.080
+	3	26994		26954.7		0.057		2.137
+	4	19436		19313.5		0.777		2.915
+	5	13919		13851.4		0.330		3.244
+	6	9980		9943.5		0.134		3.378
+	7	7153		7145.0		0.009		3.387
+	8	5241		5139.1		2.022		5.408
+	9	3868		3699.9		7.641		13.049
+	10	2627		2666.3		0.579		13.628
+	11	1983		1923.3		1.851		15.480
+	12	1371		1388.7		0.227		15.706
+	13	997		1003.7		0.045		15.751
+	14	714		726.1		0.203		15.954
+	15	484		525.8		3.328		19.283
+	16	371		381.2		0.270		19.553
+	17	298		276.5		1.665		21.218
+	18	204		200.8		0.050		21.268
+	19	135		146.0		0.827		22.095
+	20	98		106.2		0.635		22.730
+	21	268		287.1		1.272		24.003
+
+	Chisq=  24.00 for 20 degrees of freedom, p= 0.24227
+
+		SUMMARY of craptest on /Users/maeldistel/Documents/Arduino/AnalogWallet/randomnumbers-diehard/receiUno
+	 p-value for no. of wins: 0.427003
+	 p-value for throws/game: 0.242273
+	_____________________________________________________________
+
