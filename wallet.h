@@ -9,4 +9,4 @@ bool eccTest();
 void eraseDevice();
 void sign(uint8_t *hash);
 void restore(String fn);
-#endif 
+#endif

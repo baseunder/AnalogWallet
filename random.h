@@ -5,4 +5,4 @@ int getRead();
 void flickrTest();
 uint8_t getTrueRotateRandomByte();
 int RNG(uint8_t *dest, unsigned size);
-#endif 
+#endif
