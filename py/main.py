@@ -4,6 +4,7 @@ import hashlib
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from serial.tools import list_ports
+from pw_check import password_check
 
 def main():
     # List all available serial ports and let the user select one
@@ -29,21 +30,28 @@ def main():
             print("command",command,"not found")
             continue
 
-        # Send the command
-        ser.write((command + '\n').encode())
         # If the command requires a second part (like a password or hash), send it
         if command in {"init", "open"}:
             password = prompt("Enter password: ", is_password=True)
+            if not password_check(password):
+                continue
             passwordbytes = hashlib.sha256(password.encode())
+            ser.write(commands.index(command))
             ser.write(passwordbytes)
 
         if command in {"sign"}:
             hash = prompt("Enter hash: ")
-            ser.write(bytes.fromhex(hash))
+            hashB = bytes.fromhex(hash)
+            if hashB.count() != 32:
+                print("hash not valid")
+                continue
+            ser.write(commands.index(command))
+            ser.write(hashB)
 
         # If the command is "restore", send the backup
         elif command == "restore":
             backup = prompt("Enter backup name (filename on the SD Card): ")
+            ser.write(commands.index(command))
             ser.write((backup + '\n').encode())
 
         while not ser.in_waiting:
