@@ -7,7 +7,7 @@
 uint8_t private1[32];
 uint8_t public1[64];
 
-#define initBitPos 32 + 64 // pri pub
+#define initBitPos 32 // semi-pri
 
 void setRNG()
 {
@@ -61,10 +61,6 @@ bool initDevice(byte passw[])
   {
     EEPROM.update(i, private1[i]);
   }
-  for (int i = 0; i < 64; i++)
-  {
-    EEPROM.update(i + 32, public1[i]);
-  }
   EEPROM.update(initBitPos, 1);
   walletstart(passw);
   if (checkBackup(private1, public1))
@@ -83,16 +79,7 @@ void walletstart(byte passw[])
   {
     private1[i] = EEPROM.read(i) - passw[i];
   }
-  uint8_t public2[64];
-  uECC_compute_public_key(private1, public2, uECC_secp256k1());
-  for (int i = 0; i < 64; i++)
-  {
-    public1[i] = EEPROM.read(i + 32);
-  }
-  if (memcmp(public1, public2, 64) != 0)
-  {
-    Serial.write(17);
-  }
+  uECC_compute_public_key(private1, public1, uECC_secp256k1());
 }
 bool eccTest()
 {
@@ -101,7 +88,6 @@ bool eccTest()
     Serial.write(16); // Device state -> INIT not done
     return false;
   }
-  Serial.write(17); // Device state -> INIT ok
   uint8_t hash[32];
   for (int i = 0; i < 32; i++)
   {
@@ -120,24 +106,24 @@ void eraseDevice()
   {
     private1[i] = 0;
     public1[i] = 0;
+    public1[i+32] = 0;
   }
 }
 void sign(uint8_t *hash)
 {
   uint8_t sig[64];
-  if (!uECC_sign(private1, hash, 32, sig, uECC_secp256k1()))
-  {
-    Serial.write(15); // not able to sign...
-  }
-  else
-  {
-    Serial.write(sig, 64);
-  }
+  uECC_sign(private1, hash, 32, sig, uECC_secp256k1());
+  Serial.write(sig, 64);
 }
-void restore(String fn)
+void restore(String fn, byte passw[])
 {
-  if (restoreBackup(private1, fn))
+  if (restoreBackup(fn))
   {
+    for (int i = 0; i < 32; i++)
+    {
+      private1[i] = EEPROM.read(i) - passw[i];
+    }
+    uECC_compute_public_key(private1, public1, uECC_secp256k1());
     writePublicKey();
   }
   else

@@ -8,5 +8,5 @@ void walletstart(byte passw[]);
 bool eccTest();
 void eraseDevice();
 void sign(uint8_t *hash);
-void restore(String fn);
+void restore(String fn, byte passw[]);
 #endif

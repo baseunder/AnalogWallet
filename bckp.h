@@ -3,5 +3,5 @@
 #include <Arduino.h>
 bool initBackup(byte p1[], byte pub1[]);
 bool checkBackup(byte p1[], byte pub1[]);
-bool restoreBackup(byte *p1, String fn);
+bool restoreBackup(String fn);
 #endif

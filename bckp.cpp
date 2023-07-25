@@ -1,5 +1,6 @@
 #include "bckp.h"
 #include <SD.h>
+#include <EEPROM.h>
 
 String filename = "0000000000000000";
 void setFileName(byte pub[])
@@ -64,14 +65,14 @@ bool checkBackup(byte p1[], byte pub1[])
   }
 }
 
-bool restoreBackup(byte *p1, String fn)
+bool restoreBackup(String fn)
 {
   File backupFile = SD.open(fn, FILE_READ);
   if (backupFile)
   {
     for (int i = 0; i < 32; i++)
     {
-      p1[i] = backupFile.read();
+      EEPROM.update(i, backupFile.read());
     }
     backupFile.close();
     return true;
