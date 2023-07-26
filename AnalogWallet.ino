@@ -16,48 +16,61 @@ void setup()
 }
 void loop()
 {
-  if (Serial.available() > 0)
-  {
-    int cmd = Serial.read();
-    switch (cmd){
-      case 0: // init
-        while (!Serial.available()){}
-        Serial.readBytes(pass, 32);
-        if (initDevice(pass))
-        {
-          writePublicKey();
-        }
-      case 1: // version
-        Serial.println("V1.0");
-      case 2: // open
-        while (!Serial.available()){}
-        Serial.readBytes(pass, 32);
-        walletstart(pass);
-      case 3: // erase
-        eraseDevice();
-        Serial.write(12); //"Erase done"
-      case 4: // sign
-        Serial.println("hash:");
-        while (!Serial.available()){}
-        Serial.readBytes(hash, 32);
-        sign(hash);
-        while (1){}
-      case 5: // restore
-        restore(Serial.readStringUntil('\n'), pass);
-      case 6: // test
-        eccTest();
-      case 7: // rnd
-        while (1)
-        {
-          Serial.write(getTrueRotateRandomByte());
-        }
-      case 8: // rea
-        while (1)
-        {
-          Serial.println(getRead());
-        }
-    }
-    delay(250);
+  while (Serial.available() == 0) {
+    getTrueRotateRandomByte();
   }
-  getTrueRotateRandomByte();
+  int cmd = Serial.read();
+  if (cmd==0){ // init
+      while (!Serial.available()){}
+      Serial.readBytes(pass, 32);
+      uint8_t initSt = initDevice(pass);
+      Serial.write(initSt);
+      if (initSt==0)
+      {
+        writePublicKey();
+      }
+  }
+  if (cmd==1){ // version
+      Serial.println("V1.0");
+  }
+  if (cmd==2){ // open
+      while (!Serial.available()){}
+      Serial.readBytes(pass, 32);
+      walletstart(pass);
+  }
+  if (cmd==3){ // erase
+      eraseDevice();
+      Serial.write(12); //"Erase done"
+  }
+  if (cmd==4){ // sign
+      while (!Serial.available()){}
+      Serial.readBytes(hash, 32);
+      sign(hash);
+      while (1){}
+  }
+  if (cmd==5){ // restore
+      Serial.write(restore(Serial.readStringUntil('\n'), pass));
+  }
+  if (cmd==6){ // test
+      eccTest();
+  }
+  if (cmd==7){ // rnd
+      while (1)
+      {
+        Serial.write(getTrueRotateRandomByte());
+      }
+  }
+  if (cmd==8){ // rea
+      while (1)
+      {
+        Serial.println(getRead());
+      }
+  }
+  if (cmd==9){ // blink
+      digitalWrite(LED_BUILTIN, HIGH);
+      delay(1000);
+      digitalWrite(LED_BUILTIN, LOW);
+      delay(1000);
+  }
+  delay(250);
 }
