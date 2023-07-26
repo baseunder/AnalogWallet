@@ -6,9 +6,9 @@
 
 uint8_t private1[32];
 uint8_t public1[64];
-
+uint8_t stat;
 #define initBitPos 32 // semi-pri
-
+bool isOpen;
 void setRNG()
 {
   // Disable the analog comparator
@@ -37,11 +37,11 @@ void writePublicKey()
   Serial.write(public1, 64);
   eccTest();
 }
-bool initDevice(byte passw[])
+uint8_t initDevice(byte passw[])
 {
   if (EEPROM.read(initBitPos) == 1)
   {
-    return false;
+    return 20;
   }
   private1[0] = 0;
   while (private1[0] == 0)
@@ -52,10 +52,8 @@ bool initDevice(byte passw[])
   {
     private1[i] += passw[i];
   }
-  if (!initBackup(private1, public1))
-  {
-    return false;
-  }
+  stat = initBackup(private1, public1);
+  if (stat)return stat;
   EEPROM.update(initBitPos, 0);
   for (int i = 0; i < 32; i++)
   {
@@ -63,15 +61,9 @@ bool initDevice(byte passw[])
   }
   EEPROM.update(initBitPos, 1);
   walletstart(passw);
-  if (checkBackup(private1, public1))
-  {
-    Serial.write(public1, 64);
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  stat = checkBackup(private1, public1);
+  if (stat)return stat;
+  return 0;
 }
 void walletstart(byte passw[])
 {
@@ -80,13 +72,14 @@ void walletstart(byte passw[])
     private1[i] = EEPROM.read(i) - passw[i];
   }
   uECC_compute_public_key(private1, public1, uECC_secp256k1());
+  writePublicKey();
 }
-bool eccTest()
+uint8_t eccTest()
 {
   if (EEPROM.read(initBitPos) == 0)
   {
     Serial.write(16); // Device state -> INIT not done
-    return false;
+    return 30;
   }
   uint8_t hash[32];
   for (int i = 0; i < 32; i++)
@@ -94,7 +87,7 @@ bool eccTest()
     hash[i] = public1[i] + public1[i + 32];
   }
   sign(hash);
-  return true;
+  return 0;
 }
 void eraseDevice()
 {
@@ -109,13 +102,14 @@ void eraseDevice()
     public1[i+32] = 0;
   }
 }
-void sign(uint8_t *hash)
+uint8_t sign(uint8_t *hash)
 {
   uint8_t sig[64];
   uECC_sign(private1, hash, 32, sig, uECC_secp256k1());
   Serial.write(sig, 64);
+  return 0;
 }
-void restore(String fn, byte passw[])
+uint8_t restore(String fn, byte passw[])
 {
   if (restoreBackup(fn))
   {
@@ -125,9 +119,10 @@ void restore(String fn, byte passw[])
     }
     uECC_compute_public_key(private1, public1, uECC_secp256k1());
     writePublicKey();
+    return 0;
   }
   else
   {
-    Serial.write(14); // restore ERROR
+    return 40;
   }
 }

@@ -3,10 +3,10 @@
 #include <Arduino.h>
 void setRNG();
 void writePublicKey();
-bool initDevice(byte passw[]);
+uint8_t initDevice(byte passw[]);
 void walletstart(byte passw[]);
-bool eccTest();
+uint8_t eccTest();
 void eraseDevice();
-void sign(uint8_t *hash);
-void restore(String fn, byte passw[]);
+uint8_t sign(uint8_t *hash);
+uint8_t restore(String fn, byte passw[]);
 #endif

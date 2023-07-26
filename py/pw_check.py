@@ -20,7 +20,7 @@ def password_check(password):
     # searching for lowercase
     lowercase_error = re.search(r"[a-z]", password) is None
     # searching for symbols
-    symbol_error = re.search(r"[ !#$%&'()*+,-./[\\\]^_`{|}~"+r'"]', password) is None
+    symbol_error = re.search(r"[ ?!#$%&'()*+,-./[\\\]^_`{|}~"+r'"]', password) is None
     # overall result
     password_ok = not ( length_error or digit_error or uppercase_error or lowercase_error or symbol_error )
     if not password_ok:
