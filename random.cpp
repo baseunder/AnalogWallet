@@ -29,26 +29,19 @@ int getRead()
 void flickrTest()
 {
   int vonneumann = 0;
-  for (int i = 0; i < 1000; i++)
-  {
-    int leftBits = getRead();
-    int rightBits = getRead();
-    if (leftBits != rightBits)
+  while (vonneumann<100){
+    vonneumann = 0;
+    for (int i = 0; i < 1000; i++)
     {
-      vonneumann++;
-      digitalWrite(LED_BUILTIN, ((bool)(leftBits & 0x01)));
+      int leftBits = getRead();
+      int rightBits = getRead();
+      if (leftBits != rightBits)
+      {
+        vonneumann++;
+        digitalWrite(LED_BUILTIN, ((bool)(leftBits & 0x01)));
+      }
     }
-  }
-  digitalWrite(LED_BUILTIN, LOW);
-  if (vonneumann < 100)
-  {
-    while (1)
-    {
-      digitalWrite(LED_BUILTIN, LOW);
-      delay(500);
-      digitalWrite(LED_BUILTIN, HIGH);
-      delay(500);
-    }
+    digitalWrite(LED_BUILTIN, LOW);
   }
 }
 byte lastStack;
