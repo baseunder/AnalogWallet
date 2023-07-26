@@ -1,7 +1,7 @@
 #ifndef BCKP_FUNCTIONS_H
 #define BCKP_FUNCTIONS_H
 #include <Arduino.h>
-bool initBackup(byte p1[], byte pub1[]);
-bool checkBackup(byte p1[], byte pub1[]);
-bool restoreBackup(String fn);
+uint8_t initBackup(byte p1[], byte pub1[]);
+uint8_t checkBackup(byte p1[], byte pub1[]);
+uint8_t restoreBackup(String fn);
 #endif

@@ -2,50 +2,45 @@
 #include <SD.h>
 #include <EEPROM.h>
 
-String filename = "0000000000000000";
+char filename[9];
+uint8_t statb;
 void setFileName(byte pub[])
 {
-  filename = "";
-  for (int i = 0; i < 8; i++)
-  {
-    if (pub[i] < 0x10)
-    {
-      filename += '0';
-    }
-    filename += String(pub[i], HEX);
-  }
+  snprintf(filename, sizeof(filename), "%02X%02X%02X%02X", pub[0], pub[1], pub[2], pub[3]);
 }
-bool checkCard()
+uint8_t checkCard()
 {
-  if (!SD.begin(4) || SD.exists(filename))
+  if (!SD.begin())
   {
-    return false;
+    return 50;
   }
-  return true;
+  return 0;
 }
-bool initBackup(byte p1[], byte pub1[])
+uint8_t initBackup(byte p1[], byte pub1[])
 {
   setFileName(pub1);
-  if (!checkCard)
-    return false;
+  statb = checkCard();
+  if (statb) return statb;
   File backupFile = SD.open(filename, FILE_WRITE);
   if (backupFile)
   {
     backupFile.write(p1, 32);
     backupFile.close();
+    SD.end();
     return checkBackup(p1, pub1);
   }
   else
   {
-    return false;
+    SD.end();
+    return 61;
   }
 }
 
-bool checkBackup(byte p1[], byte pub1[])
+uint8_t checkBackup(byte p1[], byte pub1[])
 {
   setFileName(pub1);
-  if (!checkCard)
-    return false;
+  if (checkCard())
+    return 70;
   File backupFile = SD.open(filename, FILE_READ);
   if (backupFile)
   {
@@ -53,20 +48,25 @@ bool checkBackup(byte p1[], byte pub1[])
     {
       if (backupFile.read() != p1[i])
       {
-        return false;
+        SD.end();
+        return 71;
       }
     }
     backupFile.close();
-    return true;
+    SD.end();
+    return 0;
   }
   else
   {
-    return false;
+    SD.end();
+    return 72;
   }
 }
 
-bool restoreBackup(String fn)
+uint8_t restoreBackup(String fn)
 {
+  statb = checkCard();
+  if (statb) return statb;
   File backupFile = SD.open(fn, FILE_READ);
   if (backupFile)
   {
@@ -75,10 +75,12 @@ bool restoreBackup(String fn)
       EEPROM.update(i, backupFile.read());
     }
     backupFile.close();
-    return true;
+    SD.end();
+    return 0;
   }
   else
   {
-    return false;
+    SD.end();
+    return 80;
   }
 }
