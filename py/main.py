@@ -23,7 +23,7 @@ def main():
 
     # Initialize serial connection
     ser = serial.Serial(port_name, 115200)  # adjust baud rate as necessary
-    commands = ['init', 'version', 'open', 'erase', 'sign', 'restore', 'test', 'rnd', 'rea', 'blink']
+    commands = ['init', 'open', 'erase', 'sign', 'restore', 'rnd']
     print("-".join([" " for _ in range(10)]))
     print("\n".join(commands))
     print("-".join([" " for _ in range(10)]))
@@ -78,18 +78,6 @@ def main():
         elif command == "erase":
             ser.write(cmIndex)
             print(int.from_bytes(ser.read(),"little"))
-        elif command == "test":
-            ser.write(cmIndex)
-            while not ser.in_waiting:
-                time.sleep(0.05)
-            fis = ser.read_all()
-            if len(fis)==64:
-                print(fis.hex())
-            elif len(fis)==1:
-                print(fis[0])
-        elif command == "version":
-            ser.write(cmIndex)
-            print(ser.readline().decode())
         else:
             ser.write(cmIndex)
 if __name__ == "__main__":
