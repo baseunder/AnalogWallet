@@ -11,7 +11,7 @@ void setup()
   digitalWrite(LED_BUILTIN, HIGH);
   setRNG();
   Serial.begin(115200);
-  waitForSerial();
+  while (!Serial){getTrueRotateRandomByte();}
 }
 void loop()
 {
@@ -20,26 +20,21 @@ void loop()
   if (cmd==0){ // init
       waitForSerial();
       Serial.readBytes(buffer, 32);
-      uint8_t initSt = initDevice(buffer);
-      Serial.write(initSt);
-      if (initSt==0)
-      {
-        writePublicKey();
-      }
+      Serial.write(initDevice(buffer));
   }
   if (cmd==1){ // open
       waitForSerial();
       Serial.readBytes(buffer, 32);
-      walletstart(buffer);
+      Serial.write(walletstart(buffer));
   }
   if (cmd==2){ // erase
       eraseDevice();
-      Serial.write(12); //"Erase done"
+      Serial.write((uint8_t)0);
   }
   if (cmd==3){ // sign
       waitForSerial();
       Serial.readBytes(buffer, 32);
-      sign(buffer);
+      Serial.write(sign(buffer));
       while (1){}
   }
   if (cmd==4){ // restore

@@ -2,6 +2,8 @@
 byte lastByte = 0;
 byte leftStack = 0;
 byte rightStack = 0;
+int PINS[] = {A0,A1,A2,A3};
+int randomPin=0;
 byte rotate(byte b, int r)
 {
   return (b << r) | (b >> (8 - r));
@@ -18,7 +20,7 @@ int getRead()
 {
   // Enable the ADC
   ADCSRA |= (1 << ADEN);
-  ADMUX = (ADMUX & 0xF0) | (0 & 0x0F); // select A0
+  ADMUX = (ADMUX & 0xF0) | (PINS[randomPin] & 0x0F); // select A0
   ADCSRA |= (1 << ADSC);               // Start the ADC conversion
   while (ADCSRA & (1 << ADSC))
     ; // Wait for the conversion to complete
@@ -28,8 +30,27 @@ int getRead()
 
 void flickrTest()
 {
+  // Disable the analog comparator
+  ACSR |= (1 << ACD);
+  // Set the gain amplifier for A0 to A3 to 200x
+  ADMUX |= (1 << MUX3) | (1 << MUX2) | (1 << MUX1) | (1 << MUX0);
+  // Set the ADC clock to the fastest (prescaler of 2)
+  ADCSRA |= (1 << ADPS2);
+  ADCSRA |= (1 << ADPS1);
+  ADCSRA |= (1 << ADPS0);
+  // Set reference voltage to external (AREF)
+  // ADMUX &= ~(1 << REFS1);
+  ADMUX |= (1 << REFS1);
+  ADMUX |= (1 << REFS0);
+  // Disab ADC Noise Reduction Mode
+  SMCR &= ~(1 << SM2);
+  // Disable free running mode
+  ADCSRA &= ~(1 << ADATE);
+  // Disable auto triggering
+  ADCSRA &= ~(1 << ADIE);
   int vonneumann = 0;
   while (vonneumann<100){
+    randomPin = (randomPin + 1)%4;
     vonneumann = 0;
     for (int i = 0; i < 1000; i++)
     {
