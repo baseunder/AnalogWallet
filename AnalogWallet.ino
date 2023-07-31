@@ -41,6 +41,7 @@ void loop()
   if (cmd==4){ // restore
       waitForSerial();
       Serial.write(restore());
+      while (1){}
   }
   if (cmd==5){ // rnd
       while (1)

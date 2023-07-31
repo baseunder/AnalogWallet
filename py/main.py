@@ -2,6 +2,7 @@ import serial
 import time
 import hashlib
 import sys
+import os
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from serial.tools import list_ports
@@ -43,7 +44,7 @@ def main():
         print("-".join([" " for _ in range(10)]))
         print("\n".join(port_names))
         print("-".join([" " for _ in range(10)]))
-        port_completer = WordCompleter(port_names)
+        port_completer = WordCompleter(port_names, ignore_case=True, match_middle=True)
         port_name = prompt("Enter port name: ", completer=port_completer)
 
     # Initialize serial connection
@@ -57,8 +58,12 @@ def main():
     while True:
         command = prompt("Enter command: ", completer=command_completer)
         if not (command in commands):
-            print("command",command,"not found")
-            continue
+            if command == "exit":
+                print("AnalogWallet session ends now...")
+                break
+            else:
+                print("command",command,"not found")
+                continue
         cmIndex = commands.index(command).to_bytes(1, "little")
         # If the command requires a second part (like a password or hash), send it
         if command in {"init", "open"}:
@@ -67,7 +72,7 @@ def main():
                 continue
             ser.write(cmIndex)
             ser.write(passwordbytes)
-        elif command in {"sign"}:
+        elif command == "sign":
             hash = prompt("Enter hash [HEX]: ")
             hashB = bytes.fromhex(hash)
             if len(hashB) != 32:
@@ -76,13 +81,34 @@ def main():
             ser.write(cmIndex)
             ser.write(hashB)
         elif command == "restore":
+            print("The device blocks after the backup is done, you have to replug it to continue.")
             backup = prompt("Enter backup name (filename on the SD Card): ")
             ser.write(cmIndex)
             ser.write(bytes([int(backup[i:i+2], 16) for i in range(0,8,2)]))
         elif command == "erase":
             ser.write(cmIndex)
-        else:
+        elif command == "rnd":
+            ofname = input("provide a filename for your random data:")
+            if os.path.exists(ofname):
+                print("this file does already exist...")
+                exit()
+            output_file = open(ofname, 'wb')
             ser.write(cmIndex)
+            endsize = int(10000000/256) # 10MB
+            count = 0
+            try:
+                while True:
+                    received_data = ser.read(256)  # Specify the number of bytes to read
+                    if len(received_data)<256:
+                        raise KeyboardInterrupt
+                    output_file.write(received_data)
+                    print("size:", count*256, "sample:",int(received_data.hex()[:2],16),int(received_data.hex()[2:4],16),int(received_data.hex()[4:6],16))
+                    count += 1
+                    if count > endsize:
+                        raise KeyboardInterrupt
+            except KeyboardInterrupt:
+                output_file.close()
+            print("your random data is now generated:",output_file)
         while True:
             while not ser.in_waiting:
                 time.sleep(0.05)
@@ -99,6 +125,9 @@ def main():
                 fis = ser.read(8)
                 print(fis)
             else:
+                if command == "init":
+                    print("Unplug the device and remove the SD card now, store the backup SD card in a secure place, it is the only possibility to restore your wallet.")
+                    print("Write down your password, a restore of the wallet with your SD card is only possible if you have the right password.")
                 break
 
 if __name__ == "__main__":
