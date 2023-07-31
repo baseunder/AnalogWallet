@@ -35,16 +35,16 @@ uint8_t initDevice(byte passw[])
   {
     private1[i] += passw[i];
   }
+  EEPROM.update(initBitPos, 0);
   stat = initBackup(private1, public1);
   if (stat)return stat;
-  EEPROM.update(initBitPos, 0);
   for (int i = 0; i < 32; i++)
   {
     EEPROM.update(i, private1[i]);
   }
-  EEPROM.update(initBitPos, 1);
   stat = checkBackup(private1, public1);
   if (stat)return stat;
+  EEPROM.update(initBitPos, 1);
   walletstart(passw);
   return 0;
 }
@@ -93,19 +93,15 @@ uint8_t sign(uint8_t *hash)
   Serial.write(sig, 64);
   return 0;
 }
-uint8_t restore(String fn, byte passw[])
+
+uint8_t restore()
 {
   if (EEPROM.read(initBitPos) == 1)
   {
     return 8;
   }
-  stat = restoreBackup(fn);
+  stat = restoreBackup();
   if (stat)return stat;
-  for (int i = 0; i < 32; i++)
-  {
-    private1[i] = EEPROM.read(i) - passw[i];
-  }
-  uECC_compute_public_key(private1, public1, uECC_secp256k1());
-  writePublicKey();
+  EEPROM.update(initBitPos, 1);
   return 0;
 }

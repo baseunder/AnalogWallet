@@ -5,6 +5,7 @@ uint8_t buffer[32] = {0};
 void waitForSerial(){
   while (!Serial.available()){getTrueRotateRandomByte();}
 }
+
 void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT);
@@ -39,8 +40,7 @@ void loop()
   }
   if (cmd==4){ // restore
       waitForSerial();
-      Serial.readBytes(buffer, 32);
-      Serial.write(restore(Serial.readStringUntil('\n'), buffer));
+      Serial.write(restore());
   }
   if (cmd==5){ // rnd
       while (1)

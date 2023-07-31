@@ -7,6 +7,8 @@ uint8_t statb;
 void setFileName(byte *pub)
 {
   snprintf(filename, sizeof(filename), "%02X%02X%02X%02X\0", pub[0], pub[1], pub[2], pub[3]);
+  Serial.write((uint8_t)15);
+  Serial.write(filename, 8);
 }
 uint8_t checkCard()
 {
@@ -59,14 +61,17 @@ uint8_t checkBackup(byte *p1, byte *pub1)
   }
 }
 
-uint8_t restoreBackup(String fn)
+uint8_t restoreBackup()
 {
+  uint8_t bufr[4];
+  Serial.readBytes(bufr, 4);
   statb = checkCard();
   if (statb) return statb;
-  if (!SD.exists(fn)) {
+  setFileName(bufr);
+  if (!SD.exists(filename)) {
     return 13;
   }else{
-    File backupFile = SD.open(fn, FILE_READ);
+    File backupFile = SD.open(filename, FILE_READ);
     if (backupFile)
     {
       uint8_t tmpP1[32];
