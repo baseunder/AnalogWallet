@@ -12,4 +12,4 @@ Print the part and wait until the PAUSE is reached, then put your hardware walle
 Now exit the PAUSE and continue with the print. Your printer should now close the wallet inside a solid block of molten plastic.
 
 ## How to continue
-If you see any improvements you can simply open the "case.blend" file inside Blender (https://www.blender.org/) and add make your modifications.
+To make any desired changes, simply open the 'case.blend' file within Blender (downloadable for free at https://www.blender.org/) and modify as needed.
