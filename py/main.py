@@ -3,6 +3,8 @@ import time
 import hashlib
 import sys
 import os
+import ecdsa
+
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from serial.tools import list_ports
@@ -24,8 +26,28 @@ msgs = {
         12: "Device not initialized",
         13: "SD card file does not exist",
         14: "SD card backup file created",
-        15: "Set filename"
+        15: "Set filename",
+        16: "Hash to sign"
         }
+
+PUBLIC_KEY = None
+HASH_TO_SIGN = None
+SIGNATURE = None
+
+def verify(pubkString, hashString, signatureString):
+    class dummyHash:
+        def __init__(self, hash) -> None:
+            self.hash = hash
+        def digest(self):
+            return self.hash
+    
+    pub_key_bytes = bytes.fromhex(pubkString)
+    hsh = bytes.fromhex(hashString)
+    sig_bytes = bytes.fromhex(signatureString)
+    sk  = ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1) 
+    vk = ecdsa.VerifyingKey.from_string(pub_key_bytes, curve=ecdsa.SECP256k1)
+    veri = ecdsa.VerifyingKey.verify(vk, sig_bytes, hsh, hashfunc=dummyHash)
+    return veri
 
 def getPasswordBytes():
     password = prompt("Enter password: ", is_password=True)
@@ -114,11 +136,26 @@ def main():
                 time.sleep(0.05)
             fis=int.from_bytes(ser.read(),"little")
             print(msgs[fis])
-            if fis==1 or fis==2:
+            if fis==1:
                 while not ser.in_waiting:
                     time.sleep(0.05)
                 fis = ser.read(64)
                 print(fis.hex())
+                PUBLIC_KEY = fis.hex()
+            elif fis==2:
+                while not ser.in_waiting:
+                    time.sleep(0.05)
+                fis = ser.read(64)
+                print(fis.hex())
+                SIGNATURE = fis.hex()
+                assert verify(PUBLIC_KEY, HASH_TO_SIGN, SIGNATURE)
+                print("SIGNATURE TEST OK:\nsignature created by the private key is verified with the public key")
+            elif fis==16:
+                while not ser.in_waiting:
+                    time.sleep(0.05)
+                fis = ser.read(32)
+                print(fis.hex())
+                HASH_TO_SIGN = fis.hex()
             elif fis==14 or fis==15:
                 while not ser.in_waiting:
                     time.sleep(0.05)

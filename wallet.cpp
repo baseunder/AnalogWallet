@@ -26,6 +26,8 @@ uint8_t initDevice(byte passw[])
   {
     return 8;
   }
+  stat = checkCard();
+  if (stat) return stat;
   private1[0] = 0;
   while (private1[0] == 0)
   {
@@ -87,6 +89,8 @@ void eraseDevice()
 }
 uint8_t sign(uint8_t *hash)
 {
+  Serial.write(16);
+  Serial.write(hash, 32);
   uint8_t sig[64];
   uECC_sign(private1, hash, 32, sig, uECC_secp256k1());
   Serial.write(2);
