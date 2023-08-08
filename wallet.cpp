@@ -1,7 +1,7 @@
 #include "wallet.h"
 #include "bckp.h"
 #include "random.h"
-#include <uECC.h>
+#include "uECC.h"
 #include <EEPROM.h>
 
 uint8_t private1[32];
@@ -9,8 +9,10 @@ uint8_t public1[64];
 uint8_t stat;
 #define initBitPos 32 // semi-pri
 bool isOpen;
+
 void setRNG()
 {
+
   flickrTest();
   uECC_set_rng(&RNG);
 }
@@ -91,10 +93,20 @@ uint8_t sign(uint8_t *hash)
 {
   Serial.write(16);
   Serial.write(hash, 32);
-  uint8_t sig[64];
-  uECC_sign(private1, hash, 32, sig, uECC_secp256k1());
+  uint8_t sig[65];
+  int zeroCount = 64; // check if R or S is zero to prevent key exposure
+  uint8_t ID_raw;
+  while (zeroCount > 32){
+    sig[64] = uECC_sign(private1, hash, 32, sig, uECC_secp256k1());
+    sig[64]--;
+    zeroCount = 0;
+    for (int i = 0; i < 32; i++){
+      if (sig[i]==0)zeroCount++;
+      if (sig[i+32]==0)zeroCount++;
+    }
+  }
   Serial.write(2);
-  Serial.write(sig, 64);
+  Serial.write(sig, 65);
   return 0;
 }
 

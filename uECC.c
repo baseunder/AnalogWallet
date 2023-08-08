@@ -1338,7 +1338,7 @@ int uECC_sign_with_k(const uint8_t *private_key,
     return uECC_sign_with_k_internal(private_key, message_hash, hash_size, k2, signature, curve);
 }
 
-int uECC_sign(const uint8_t *private_key,
+uint8_t uECC_sign(const uint8_t *private_key,
               const uint8_t *message_hash,
               unsigned hash_size,
               uint8_t *signature,
@@ -1350,9 +1350,11 @@ int uECC_sign(const uint8_t *private_key,
         if (!uECC_generate_random_int(k, curve->n, BITS_TO_WORDS(curve->num_n_bits))) {
             return 0;
         }
-
+        uint8_t pub[64] = {0};
+        uECC_compute_public_key(k, pub, curve);
+        uint8_t ID = pub[63]%2;
         if (uECC_sign_with_k_internal(private_key, message_hash, hash_size, k, signature, curve)) {
-            return 1;
+            return 1 + ID;
         }
     }
     return 0;
