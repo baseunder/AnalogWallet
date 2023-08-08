@@ -49,7 +49,8 @@ void flickrTest()
   // Disable auto triggering
   ADCSRA &= ~(1 << ADIE);
   int vonneumann = 0;
-  while (vonneumann<100){
+  digitalWrite(LED_BUILTIN, HIGH);
+  while (vonneumann<200){
     randomPin = (randomPin + 1)%4;
     vonneumann = 0;
     for (int i = 0; i < 1000; i++)
@@ -59,11 +60,10 @@ void flickrTest()
       if (leftBits != rightBits)
       {
         vonneumann++;
-        digitalWrite(LED_BUILTIN, ((bool)(leftBits & 0x01)));
       }
     }
-    digitalWrite(LED_BUILTIN, LOW);
   }
+  digitalWrite(LED_BUILTIN, LOW);
 }
 byte lastStack;
 byte finalByte;
@@ -103,6 +103,7 @@ byte getTrueRotateRandomByte()
   lastByte ^= finalByte;
   return lastByte ^ leftStack ^ rightStack;
 }
+
 int RNG(uint8_t *dest, unsigned size)
 {
   flickrTest();
