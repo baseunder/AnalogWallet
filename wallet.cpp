@@ -9,6 +9,7 @@ uint8_t public1[64];
 uint8_t stat;
 #define initBitPos 32 // semi-pri
 bool isOpen;
+
 void setRNG()
 {
   flickrTest();
@@ -18,7 +19,6 @@ void writePublicKey()
 {
   Serial.write(1);
   Serial.write(public1, 64);
-  eccTest();
 }
 uint8_t initDevice(byte passw[])
 {
@@ -48,6 +48,7 @@ uint8_t initDevice(byte passw[])
   if (stat)return stat;
   EEPROM.update(initBitPos, 1);
   walletstart(passw);
+  eccTest();
   return 0;
 }
 uint8_t walletstart(byte *passw)
@@ -91,10 +92,19 @@ uint8_t sign(uint8_t *hash)
 {
   Serial.write(16);
   Serial.write(hash, 32);
-  uint8_t sig[64];
-  uECC_sign(private1, hash, 32, sig, uECC_secp256k1());
-  Serial.write(2);
-  Serial.write(sig, 64);
+  uint8_t sig[65];
+  byte opres = 0;
+  byte tc = 0;
+  do {
+    opres = uECC_sign(private1, hash, 32, sig, uECC_secp256k1());
+    tc++; 
+  } while ( (opres) && ((sig[0]>=0x80)||(sig[32]>=0x80)) && (tc<20) );
+  if (tc<20){
+    Serial.write(2);
+    Serial.write(sig, 64);
+  }else{
+    Serial.write(17);
+  }
   return 0;
 }
 
