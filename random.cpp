@@ -22,8 +22,7 @@ int getRead()
   ADCSRA |= (1 << ADEN);
   ADMUX = (ADMUX & 0xF0) | (PINS[randomPin] & 0x0F); // select A0
   ADCSRA |= (1 << ADSC);               // Start the ADC conversion
-  while (ADCSRA & (1 << ADSC))
-    ; // Wait for the conversion to complete
+  while (ADCSRA & (1 << ADSC)); // Wait for the conversion to complete
   ADCSRA &= ~(1 << ADEN);
   return ADC;
 }
@@ -48,21 +47,30 @@ void flickrTest()
   ADCSRA &= ~(1 << ADATE);
   // Disable auto triggering
   ADCSRA &= ~(1 << ADIE);
-  int vonneumann = 0;
+  int maxVal = 0;
+  int maxPin = 0;
   digitalWrite(LED_BUILTIN, HIGH);
-  while (vonneumann<200){
-    randomPin = (randomPin + 1)%4;
-    vonneumann = 0;
-    for (int i = 0; i < 1000; i++)
+  while (maxVal<16){
+    for (int i = 0; i < 4; i++)
     {
-      int leftBits = getRead();
-      int rightBits = getRead();
-      if (leftBits != rightBits)
+      randomPin = i;
+      int vonneumann = 0;
+      for (int i = 0; i < 64; i++)
       {
-        vonneumann++;
+        int leftBits = getRead();
+        int rightBits = getRead();
+        if (leftBits != rightBits)
+        {
+          vonneumann++;
+        }
+      }
+      if (vonneumann>maxVal){
+        maxVal = vonneumann;
+        maxPin = i;
       }
     }
   }
+  randomPin = maxPin;
   digitalWrite(LED_BUILTIN, LOW);
 }
 byte lastStack;

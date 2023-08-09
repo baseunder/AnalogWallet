@@ -1,7 +1,7 @@
 #include "wallet.h"
 #include "bckp.h"
 #include "random.h"
-#include "uECC.h"
+#include <uECC.h>
 #include <EEPROM.h>
 
 uint8_t private1[32];
@@ -12,7 +12,6 @@ bool isOpen;
 
 void setRNG()
 {
-
   flickrTest();
   uECC_set_rng(&RNG);
 }
@@ -20,7 +19,6 @@ void writePublicKey()
 {
   Serial.write(1);
   Serial.write(public1, 64);
-  eccTest();
 }
 uint8_t initDevice(byte passw[])
 {
@@ -50,6 +48,7 @@ uint8_t initDevice(byte passw[])
   if (stat)return stat;
   EEPROM.update(initBitPos, 1);
   walletstart(passw);
+  eccTest();
   return 0;
 }
 uint8_t walletstart(byte *passw)
@@ -94,19 +93,18 @@ uint8_t sign(uint8_t *hash)
   Serial.write(16);
   Serial.write(hash, 32);
   uint8_t sig[65];
-  int zeroCount = 64; // check if R or S is zero to prevent key exposure
-  uint8_t ID_raw;
-  while (zeroCount > 32){
-    sig[64] = uECC_sign(private1, hash, 32, sig, uECC_secp256k1());
-    sig[64]--;
-    zeroCount = 0;
-    for (int i = 0; i < 32; i++){
-      if (sig[i]==0)zeroCount++;
-      if (sig[i+32]==0)zeroCount++;
-    }
+  byte opres = 0;
+  byte tc = 0;
+  do {
+    opres = uECC_sign(private1, hash, 32, sig, uECC_secp256k1());
+    tc++; 
+  } while ( (opres) && ((sig[0]>=0x80)||(sig[32]>=0x80)) && (tc<20) );
+  if (tc<20){
+    Serial.write(2);
+    Serial.write(sig, 64);
+  }else{
+    Serial.write(17);
   }
-  Serial.write(2);
-  Serial.write(sig, 65);
   return 0;
 }
 
