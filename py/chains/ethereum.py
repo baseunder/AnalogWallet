@@ -14,7 +14,8 @@ class ETHtx:
         nonce = int(input("Enter the accounts nonce: "))
         chain = int(prompt("Enter the chain ID (1->Mainnet): ", default="1"))
         maxFeePerGas = Web3.to_wei(prompt("Enter max feePerGas in gwei: ", default="20"), "gwei")
-        self.build(nonce, to, amount, chain, maxFeePerGas)
+        maxPriorityFee = Web3.to_wei(prompt("Enter max priorityFeePerGas in gwei: ", default="1"), "gwei")
+        self.build(nonce, to, amount, chain, maxFeePerGas, maxPriorityFee)
         ser.write(int(3).to_bytes(1, "little"))
         ser.write(bytes.fromhex(self.getTxHash().hex()))
         while not ser.in_waiting:
@@ -38,12 +39,12 @@ class ETHtx:
             print("Signed TX, you can broadcast your TX using an online Ethereum transaction broadcast service")
             print("Signed TX", signedTX.hex())
 
-    def build(self, nonce, to, value, chainId, maxGasPrice):
+    def build(self, nonce, to, value, chainId, maxGasPrice, maxPriorityFee):
         self.dynamic_fee_transaction = {
                             "type": 2,  # optional - can be implicitly determined based on max fee params  # noqa: E501
                             "gas": 21000,
                             "maxFeePerGas": maxGasPrice,
-                            "maxPriorityFeePerGas": maxGasPrice,
+                            "maxPriorityFeePerGas": maxPriorityFee,
                             "data": "",
                             "nonce": nonce,
                             "to": to,
