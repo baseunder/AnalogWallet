@@ -79,7 +79,8 @@ def main():
 
     ser = serial.Serial(port_name, 115200)
     commands = ['init', 'open', 'erase', 'sign', 'restore', 'rnd']
-    chaincommands = ['sendether']
+    chaincommands = ['ether']
+    commands += chaincommands
     print("-".join([" " for _ in range(10)]))
     print("\n".join(commands))
     print("-".join([" " for _ in range(10)]))
@@ -88,19 +89,19 @@ def main():
     while True:
         command = prompt("Enter command: ", completer=command_completer)
         if not (command in commands):
-            if command in chaincommands:
-                if deviceOpen:
-                    ETHtx(PUBLIC_KEY, ser, msgs)
-                else:
-                    print("Wallet is not open")
+            if command == "exit":
+                print("AnalogWallet session ends now...")
                 break
             else:
-                if command == "exit":
-                    print("AnalogWallet session ends now...")
-                    break
-                else:
-                    print("command", command, "not found")
-                    continue
+                print("command", command, "not found")
+                continue
+        if command in chaincommands:
+            if deviceOpen:
+                ETHtx(PUBLIC_KEY, ser, msgs)
+                break
+            else:
+                print("Wallet is not open")
+                continue
         cmIndex = commands.index(command).to_bytes(1, "little")
         if command in {"init", "open"}:
             passwordbytes = getPasswordBytes()
