@@ -1,18 +1,18 @@
 #include "random.h"
 #include "wallet.h"
-uint8_t buffer[32] = {0};
+
+uint8_t sbuffer[32] = {0};
 
 void waitForSerial(){
-  while (!Serial.available()){getTrueRotateRandomByte();}
+  while (!Serial.available()){getTrueRotateRandomByteWithSHAupdate();}
 }
 
 void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH);
   setRNG();
   Serial.begin(115200);
-  while (!Serial){getTrueRotateRandomByte();}
+  while (!Serial){getTrueRotateRandomByteWithSHAupdate();}
 }
 void loop()
 {
@@ -20,13 +20,13 @@ void loop()
   int cmd = Serial.read();
   if (cmd==0){ // init
       waitForSerial();
-      Serial.readBytes(buffer, 32);
-      Serial.write(initDevice(buffer));
+      Serial.readBytes(sbuffer, 32);
+      Serial.write(initDevice(sbuffer));
   }
   if (cmd==1){ // open
       waitForSerial();
-      Serial.readBytes(buffer, 32);
-      Serial.write(walletstart(buffer));
+      Serial.readBytes(sbuffer, 32);
+      Serial.write(walletstart(sbuffer));
   }
   if (cmd==2){ // erase
       eraseDevice();
@@ -34,8 +34,8 @@ void loop()
   }
   if (cmd==3){ // sign
       waitForSerial();
-      Serial.readBytes(buffer, 32);
-      Serial.write(sign(buffer));
+      Serial.readBytes(sbuffer, 32);
+      Serial.write(sign(sbuffer));
       while (1){}
   }
   if (cmd==4){ // restore

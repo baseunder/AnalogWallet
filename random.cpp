@@ -1,9 +1,14 @@
+#include "Arduino.h"
 #include "random.h"
+#include "sha256.h"
+
 byte lastByte = 0;
 byte leftStack = 0;
 byte rightStack = 0;
 int PINS[] = {A0,A1,A2,A3};
 int randomPin=0;
+Sha256 mySHA = Sha256();
+
 byte rotate(byte b, int r)
 {
   return (b << r) | (b >> (8 - r));
@@ -26,9 +31,17 @@ int getRead()
   ADCSRA &= ~(1 << ADEN);
   return ADC;
 }
-
+bool newSHA = true;
 void flickrTest()
 {
+  if (newSHA) {
+    newSHA = false;
+    mySHA.init();
+    for (int i = 0; i < 32; i++)
+    {
+      getTrueRotateRandomByteWithSHAupdate();
+    }
+  } 
   // Disable the analog comparator
   ACSR |= (1 << ACD);
   // Set the gain amplifier for A0 to A3 to 200x
@@ -47,39 +60,41 @@ void flickrTest()
   ADCSRA &= ~(1 << ADATE);
   // Disable auto triggering
   ADCSRA &= ~(1 << ADIE);
-  int maxVal = 0;
+  int maxFlicker = 0;
   int maxPin = 0;
-  digitalWrite(LED_BUILTIN, HIGH);
-  while (maxVal<16){
-    for (int i = 0; i < 4; i++)
-    {
+  while (maxFlicker<16){
+    for (int i = 0; i < 4; i++){
       randomPin = i;
-      int vonneumann = 0;
-      for (int i = 0; i < 64; i++)
-      {
-        int leftBits = getRead();
-        int rightBits = getRead();
-        if (leftBits != rightBits)
-        {
-          vonneumann++;
+      int tmpFlicker = 0;
+      for (int j = 0; j < 64; j++){
+        int r1 = getRead();
+        int r2 = getRead();
+        if (r1!=r2){
+          tmpFlicker ++;
         }
       }
-      if (vonneumann>maxVal){
-        maxVal = vonneumann;
+      if (tmpFlicker > maxFlicker){
+        maxFlicker = tmpFlicker;
         maxPin = i;
       }
     }
   }
   randomPin = maxPin;
-  digitalWrite(LED_BUILTIN, LOW);
 }
 byte lastStack;
-byte finalByte;
 int leftBits;
 int rightBits;
+
+byte getTrueRotateRandomByteWithSHAupdate()
+{
+  byte nextByte = getTrueRotateRandomByte();
+  mySHA.write(nextByte);
+  return nextByte;
+}
+
 byte getTrueRotateRandomByte()
 {
-  finalByte = 0;
+  byte finalByte = 0;
   lastStack = leftStack ^ rightStack;
   for (int i = 0; i < 4; i++)
   {
@@ -114,12 +129,15 @@ byte getTrueRotateRandomByte()
 
 int RNG(uint8_t *dest, unsigned size)
 {
-  flickrTest();
-  while (size)
-  {
-    *dest = getTrueRotateRandomByte();
-    ++dest;
-    --size;
+  if (size!=32)while(1);
+  int oldRandomPin = randomPin+1;
+  for (int i = 0; i < 4; i++){
+    oldRandomPin += i;
+    randomPin = oldRandomPin % 4;
+    for (int i = 0; i < 32; i++){
+      getTrueRotateRandomByteWithSHAupdate();
+    }
   }
+  memcpy(dest, mySHA.result(), 32);
   return 1;
 }

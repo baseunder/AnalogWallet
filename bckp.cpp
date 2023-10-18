@@ -1,91 +1,59 @@
 #include "bckp.h"
-#include <SD.h>
 #include <EEPROM.h>
+#include "SDCARDmodded.h"
 
-uint8_t filename[9];
 uint8_t statb;
-void setFileName(byte *pub)
-{
-  snprintf(filename, sizeof(filename), "%02X%02X%02X%02X\0", pub[0], pub[1], pub[2], pub[3]);
-  Serial.write((uint8_t)15);
-  Serial.write(filename, 8);
-}
+int port = 10;
+int block = 1000;
+
+unsigned char buffer[512];
+unsigned char error;
 uint8_t checkCard()
 {
-  if (!SD.begin())
+  error = SDCARDmodded.readblock(block, port);
+  if (error>0)
   {
     return 7;
   }
   return 0;
 }
+
 uint8_t initBackup(byte *p1, byte *pub1)
 {
-  setFileName(pub1);
   statb = checkCard();
   if (statb) return statb;
-  File backupFile = SD.open(filename, FILE_WRITE);
-  if (backupFile)
+  memcpy(buffer, p1, 32);
+  for (int i = 0; i < 32; i++)
   {
-    backupFile.write(p1, 32);
-    backupFile.close();
-    Serial.write((uint8_t)14);
-    Serial.write(filename, 8);
-    return 0;
+    error = SDCARDmodded.writeblock(block*i, port);
+    if (error!=0)return 9;
   }
-  else
-  {
-    return 9;
-  }
+  return 0;
 }
 
 uint8_t checkBackup(byte *p1, byte *pub1)
 {
-  setFileName(pub1);
   statb = checkCard();
   if (statb) return statb;
-  File backupFile = SD.open(filename, FILE_READ);
-  if (backupFile)
-  {
-    uint8_t tmpP1[32];
-    backupFile.readBytes(tmpP1, 32);
-    backupFile.close();
-    if (memcmp(tmpP1, p1, 32)==0){
-      return 0;
-    }else{
-      return 11;
-    }
-  }
-  else
-  {
-    return 10;
+  if (memcmp(buffer, p1, 32)==0){
+    return 0;
+  }else{
+    return 11;
   }
 }
 
 uint8_t restoreBackup()
 {
-  uint8_t bufr[4];
-  Serial.readBytes(bufr, 4);
   statb = checkCard();
   if (statb) return statb;
-  setFileName(bufr);
-  if (!SD.exists(filename)) {
+  unsigned char *mm = (unsigned char*)buffer;
+  if (memcmp(mm, mm+1, 32)==0) {
     return 13;
   }else{
-    File backupFile = SD.open(filename, FILE_READ);
-    if (backupFile)
+    for (int i = 0; i < 32; i++)
     {
-      uint8_t tmpP1[32];
-      backupFile.readBytes(tmpP1,32);
-      for (int i = 0; i < 32; i++)
-      {
-        EEPROM.update(i, tmpP1[i]);
-      }
-      backupFile.close();
-      return 0;
+      EEPROM.update(i, buffer[i]);
     }
-    else
-    {
-      return 10;
-    }
+    return 0;
   }
 }

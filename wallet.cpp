@@ -92,19 +92,14 @@ uint8_t sign(uint8_t *hash)
 {
   Serial.write(16);
   Serial.write(hash, 32);
-  uint8_t sig[65];
+  uint8_t sig[64];
   byte opres = 0;
   byte tc = 0;
   do {
     opres = uECC_sign(private1, hash, 32, sig, uECC_secp256k1());
-    tc++; 
-  } while ( (opres) && ((sig[0]>=0x80)||(sig[32]>=0x80)) && (tc<20) );
-  if (tc<20){
-    Serial.write(2);
-    Serial.write(sig, 64);
-  }else{
-    Serial.write(17);
-  }
+  } while ( (opres) && ((sig[0]>=0x80)||(sig[32]>=0x80)));
+  Serial.write(2);
+  Serial.write(sig, 64);
   return 0;
 }
 
