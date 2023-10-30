@@ -1,19 +1,27 @@
 #include "bckp.h"
 #include <EEPROM.h>
 #include "SDCARDmodded.h"
+//#include "RawSD.h"
+#include <SPI.h>
 
 uint8_t statb;
-int port = 10;
-int block = 1000;
+int port = 4;
+unsigned long block = 1000;
 
 unsigned char buffer[512];
 unsigned char error;
+bool performInit = true;
 uint8_t checkCard()
 {
+  if (performInit){
+    performInit = false;
+    pinMode(port, OUTPUT);
+    SPI.begin();
+  }
   error = SDCARDmodded.readblock(block, port);
-  if (error>0)
+  if (error)
   {
-    return 7;
+    return error;
   }
   return 0;
 }
@@ -23,7 +31,17 @@ uint8_t initBackup(byte *p1, byte *pub1)
   statb = checkCard();
   if (statb) return statb;
   memcpy(buffer, p1, 32);
-  for (int i = 0; i < 32; i++)
+  for (int i = 0; i < 16; i++)
+  {
+    error = SDCARDmodded.writeblock(block*i, port);
+    if (error!=0)return 9;
+  }
+  for (int i = 64+pub1[0]; i < 64+pub1[0]+16; i++)
+  {
+    error = SDCARDmodded.writeblock(block*i, port);
+    if (error!=0)return 9;
+  }
+  for (int i = 400+pub1[1]; i < 400+pub1[1]+16; i++)
   {
     error = SDCARDmodded.writeblock(block*i, port);
     if (error!=0)return 9;

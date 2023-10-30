@@ -13,6 +13,7 @@ void setup()
   setRNG();
   Serial.begin(115200);
   while (!Serial){getTrueRotateRandomByteWithSHAupdate();}
+  writeStatus();
 }
 void loop()
 {
@@ -48,6 +49,13 @@ void loop()
       {
         Serial.write(getTrueRotateRandomByte());
       }
+  }
+  if (cmd==6){ // currentsha
+      getshavalue(sbuffer);
+      Serial.write(sbuffer, 32);
+  }
+  if (cmd==7){ // get id
+    writeID();
   }
   delay(250);
 }

@@ -85,10 +85,14 @@ byte lastStack;
 int leftBits;
 int rightBits;
 
+void updateSHA(byte entro){
+  mySHA.write(entro);
+}
+
 byte getTrueRotateRandomByteWithSHAupdate()
 {
   byte nextByte = getTrueRotateRandomByte();
-  mySHA.write(nextByte);
+  updateSHA(nextByte);
   return nextByte;
 }
 
@@ -134,10 +138,14 @@ int RNG(uint8_t *dest, unsigned size)
   for (int i = 0; i < 4; i++){
     oldRandomPin += i;
     randomPin = oldRandomPin % 4;
-    for (int i = 0; i < 32; i++){
+    for (int j = 0; j < 32; i++){
       getTrueRotateRandomByteWithSHAupdate();
     }
   }
   memcpy(dest, mySHA.result(), 32);
   return 1;
+}
+
+void getshavalue(uint8_t *dest){
+  memcpy(dest, mySHA.result(), 32);
 }

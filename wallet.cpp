@@ -7,7 +7,7 @@
 uint8_t private1[32];
 uint8_t public1[64];
 uint8_t stat;
-#define initBitPos 32 // semi-pri
+#define initBitPos 64 // semi-pri
 bool isOpen;
 
 void setRNG()
@@ -20,11 +20,27 @@ void writePublicKey()
   Serial.write(1);
   Serial.write(public1, 64);
 }
-uint8_t initDevice(byte passw[])
+void writeStatus(){
+  writeID();
+  Serial.write(checkCard());
+}
+void writeID()
 {
+  for (int i = 32; i < 64; i++){
+    Serial.write(EEPROM.read(i));
+  }
+}
+uint8_t initDevice(byte *passw)
+{
+  uint8_t tbuffer[32];
+  Serial.readBytes(tbuffer, 32); // wallet id bytes
   if (EEPROM.read(initBitPos) == 1)
   {
     return 8;
+  }
+  for (int i = 0; i < 32; i++){
+    updateSHA(passw[i]);
+    updateSHA(tbuffer[i]);
   }
   stat = checkCard();
   if (stat) return stat;
@@ -43,6 +59,7 @@ uint8_t initDevice(byte passw[])
   for (int i = 0; i < 32; i++)
   {
     EEPROM.update(i, private1[i]);
+    EEPROM.update(i+32, tbuffer[i]);
   }
   stat = checkBackup(private1, public1);
   if (stat)return stat;
@@ -97,7 +114,7 @@ uint8_t sign(uint8_t *hash)
   byte tc = 0;
   do {
     opres = uECC_sign(private1, hash, 32, sig, uECC_secp256k1());
-  } while ( (opres) && ((sig[0]>=0x80)||(sig[32]>=0x80)));
+  } while ( opres==0 || ((sig[0]<0x80)||(sig[32]<0x80)));
   Serial.write(2);
   Serial.write(sig, 64);
   return 0;
