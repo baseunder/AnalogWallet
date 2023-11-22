@@ -8,7 +8,6 @@ uint8_t private1[32];
 uint8_t public1[64];
 uint8_t stat;
 #define initBitPos 64 // semi-pri
-bool isOpen;
 
 void setRNG()
 {
@@ -21,6 +20,7 @@ void writePublicKey()
   Serial.write(public1, 64);
 }
 void writeStatus(){
+  Serial.write((uint8_t)18);
   writeID();
   Serial.write(checkCard());
 }
@@ -42,27 +42,20 @@ uint8_t initDevice(byte *passw)
     updateSHA(passw[i]);
     updateSHA(tbuffer[i]);
   }
-  stat = checkCard();
-  if (stat) return stat;
-  private1[0] = 0;
-  while (private1[0] == 0)
-  {
-    uECC_make_key(public1, private1, uECC_secp256k1());
-  }
+  if (stat = checkCard()) return stat;
+  uECC_make_key(public1, private1, uECC_secp256k1());
   for (int i = 0; i < 32; i++)
   {
     private1[i] += passw[i];
   }
   EEPROM.update(initBitPos, 0);
-  stat = initBackup(private1, public1);
-  if (stat)return stat;
+  if (stat = initBackup(private1, public1))return stat;
   for (int i = 0; i < 32; i++)
   {
     EEPROM.update(i, private1[i]);
     EEPROM.update(i+32, tbuffer[i]);
   }
-  stat = checkBackup(private1, public1);
-  if (stat)return stat;
+  if (stat = checkBackup(private1, public1))return stat;
   EEPROM.update(initBitPos, 1);
   walletstart(passw);
   eccTest();
@@ -114,7 +107,7 @@ uint8_t sign(uint8_t *hash)
   byte tc = 0;
   do {
     opres = uECC_sign(private1, hash, 32, sig, uECC_secp256k1());
-  } while ( opres==0 || ((sig[0]<0x80)||(sig[32]<0x80)));
+  } while ((opres==0)||(sig[0]<0x80)||(sig[32]<0x80));
   Serial.write(2);
   Serial.write(sig, 64);
   return 0;
@@ -126,8 +119,7 @@ uint8_t restore()
   {
     return 8;
   }
-  stat = restoreBackup();
-  if (stat)return stat;
+  if (stat = restoreBackup())return stat;
   EEPROM.update(initBitPos, 1);
   return 0;
 }

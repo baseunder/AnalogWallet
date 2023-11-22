@@ -2,12 +2,12 @@
 #include "random.h"
 #include "sha256.h"
 
+Sha256 mySHA = Sha256();
 byte lastByte = 0;
 byte leftStack = 0;
 byte rightStack = 0;
 int PINS[] = {A0,A1,A2,A3};
 int randomPin=0;
-Sha256 mySHA = Sha256();
 
 byte rotate(byte b, int r)
 {
@@ -25,7 +25,7 @@ int getRead()
 {
   // Enable the ADC
   ADCSRA |= (1 << ADEN);
-  ADMUX = (ADMUX & 0xF0) | (PINS[randomPin] & 0x0F); // select A0
+  ADMUX = (ADMUX & 0xF0) | (PINS[randomPin] & 0x0F); // select current randomPin
   ADCSRA |= (1 << ADSC);               // Start the ADC conversion
   while (ADCSRA & (1 << ADSC)); // Wait for the conversion to complete
   ADCSRA &= ~(1 << ADEN);
@@ -54,7 +54,7 @@ void flickrTest()
   // ADMUX &= ~(1 << REFS1);
   ADMUX |= (1 << REFS1);
   ADMUX |= (1 << REFS0);
-  // Disab ADC Noise Reduction Mode
+  // Disable ADC Noise Reduction Mode
   SMCR &= ~(1 << SM2);
   // Disable free running mode
   ADCSRA &= ~(1 << ADATE);
@@ -134,18 +134,16 @@ byte getTrueRotateRandomByte()
 int RNG(uint8_t *dest, unsigned size)
 {
   if (size!=32)while(1);
-  int oldRandomPin = randomPin+1;
-  for (int i = 0; i < 4; i++){
-    oldRandomPin += i;
-    randomPin = oldRandomPin % 4;
-    for (int j = 0; j < 32; i++){
-      getTrueRotateRandomByteWithSHAupdate();
+  do{
+    int oldRandomPin = randomPin+1;
+    for (int i = 0; i < 4; i++){
+      oldRandomPin += i;
+      randomPin = oldRandomPin % 4;
+      for (int j = 0; j < 32; i++){
+        getTrueRotateRandomByteWithSHAupdate();
+      }
     }
-  }
-  memcpy(dest, mySHA.result(), 32);
+    memcpy(dest, mySHA.result(), 32);
+  }while (dest[0]==0);
   return 1;
-}
-
-void getshavalue(uint8_t *dest){
-  memcpy(dest, mySHA.result(), 32);
 }

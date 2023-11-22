@@ -1,19 +1,16 @@
 #include "random.h"
 #include "wallet.h"
-
+#include "integrity.h"
 uint8_t sbuffer[32] = {0};
 
 void waitForSerial(){
   while (!Serial.available()){getTrueRotateRandomByteWithSHAupdate();}
 }
-
 void setup()
 {
-  pinMode(LED_BUILTIN, OUTPUT);
   setRNG();
   Serial.begin(115200);
   while (!Serial){getTrueRotateRandomByteWithSHAupdate();}
-  writeStatus();
 }
 void loop()
 {
@@ -40,7 +37,6 @@ void loop()
       while (1){}
   }
   if (cmd==4){ // restore
-      waitForSerial();
       Serial.write(restore());
       while (1){}
   }
@@ -50,12 +46,13 @@ void loop()
         Serial.write(getTrueRotateRandomByte());
       }
   }
-  if (cmd==6){ // currentsha
-      getshavalue(sbuffer);
-      Serial.write(sbuffer, 32);
+  if (cmd==6){ // get id and card status
+      writeStatus();
   }
-  if (cmd==7){ // get id
-    writeID();
+  if (cmd==7){ // get firmware integrity hash
+    waitForSerial();
+    Serial.readBytes(sbuffer, 32);
+    getIntegrityHash(sbuffer);
   }
   delay(250);
 }
