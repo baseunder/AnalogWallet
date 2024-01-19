@@ -79,4 +79,5 @@ uint8_t getIntegrityHash(byte *seed)
   }
   Serial.write((uint8_t)19);
   Serial.write(integritySHA.result(),32);
+  Serial.write((uint8_t)0);
 }

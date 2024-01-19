@@ -134,12 +134,12 @@ byte getTrueRotateRandomByte()
 int RNG(uint8_t *dest, unsigned size)
 {
   if (size!=32)while(1);
+  int oldRandomPin = randomPin+1;
   do{
-    int oldRandomPin = randomPin+1;
     for (int i = 0; i < 4; i++){
       oldRandomPin += i;
       randomPin = oldRandomPin % 4;
-      for (int j = 0; j < 32; i++){
+      for (int j = 0; j < 32; j++){
         getTrueRotateRandomByteWithSHAupdate();
       }
     }

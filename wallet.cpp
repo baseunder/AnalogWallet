@@ -8,9 +8,11 @@ uint8_t private1[32];
 uint8_t public1[64];
 uint8_t stat;
 #define initBitPos 64 // semi-pri
-
+bool setRngDone = false;
 void setRNG()
 {
+  if (setRngDone) while(1);
+  setRngDone = true;
   flickrTest();
   uECC_set_rng(&RNG);
 }
@@ -34,10 +36,7 @@ uint8_t initDevice(byte *passw)
 {
   uint8_t tbuffer[32];
   Serial.readBytes(tbuffer, 32); // wallet id bytes
-  if (EEPROM.read(initBitPos) == 1)
-  {
-    return 8;
-  }
+  if (EEPROM.read(initBitPos) == 1) return 8;
   for (int i = 0; i < 32; i++){
     updateSHA(passw[i]);
     updateSHA(tbuffer[i]);
@@ -53,9 +52,13 @@ uint8_t initDevice(byte *passw)
   for (int i = 0; i < 32; i++)
   {
     EEPROM.update(i, private1[i]);
-    EEPROM.update(i+32, tbuffer[i]);
   }
   if (stat = checkBackup(private1, public1))return stat;
+  for (int i = 0; i < 32; i++)
+  {
+    EEPROM.update(i+32, tbuffer[i]);
+  }
+
   EEPROM.update(initBitPos, 1);
   walletstart(passw);
   eccTest();
