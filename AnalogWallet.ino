@@ -12,6 +12,14 @@ void setup()
   Serial.begin(115200);
   while (!Serial){getTrueRotateRandomByteWithSHAupdate();}
 }
+
+void stayBlocked(){
+  while(1){
+    waitForSerial();
+    Serial.write((uint8_t)21);
+  }
+}
+
 void loop()
 {
   waitForSerial();
@@ -20,11 +28,12 @@ void loop()
       waitForSerial();
       Serial.readBytes(sbuffer, 32);
       Serial.write(initDevice(sbuffer));
+      stayBlocked();
   }
   if (cmd==1){ // open
       waitForSerial();
       Serial.readBytes(sbuffer, 32);
-      Serial.write(walletstart(sbuffer));
+      Serial.write(walletstart(sbuffer, false));
   }
   if (cmd==2){ // erase
       eraseDevice();
@@ -34,11 +43,11 @@ void loop()
       waitForSerial();
       Serial.readBytes(sbuffer, 32);
       Serial.write(sign(sbuffer));
-      while (1){}
+      stayBlocked();
   }
   if (cmd==4){ // restore
       Serial.write(restore());
-      while (1){}
+      stayBlocked();
   }
   if (cmd==5){ // rnd
       while (1)

@@ -35,9 +35,9 @@ uint8_t writeAndValidSD(uint8_t *data, int blockNumber, int pin=4){
 }
 uint8_t secureWriteAndValidSD(uint8_t *data, int pin=4){
   if (statb=writeAndValidSD(data, 100, pin))return statb;
-  if (statb=writeAndValidSD(data, 500, pin))return statb;
   if (statb=writeAndValidSD(data, 1000, pin))return statb;
-  int blockNumber = 0;
+  if (statb=writeAndValidSD(data, 10000, pin))return statb;
+  int blockNumber = 10000;
   for (int j = 0; j < 32; j++){
     blockNumber += data[j];
     if (statb=writeAndValidSD(data, blockNumber, pin))return statb;
@@ -64,7 +64,7 @@ uint8_t initBackup(byte *p1, byte *pub1)
 
 uint8_t checkBackup(byte *p1, byte *pub1)
 {
-  statb = readSD(data, 500);
+  statb = readSD(data, 10000);
   if (statb) return statb;
   if (memcmp(data, p1, 32)){
     return 11;
@@ -75,7 +75,7 @@ uint8_t checkBackup(byte *p1, byte *pub1)
 
 uint8_t restoreBackup()
 {
-  statb = readSD(data, 500);
+  statb = readSD(data, 10000);
   if (statb) return statb;
   if (memcmp(data, data+1, 31)) {
     for (int i = 0; i < 32; i++)
