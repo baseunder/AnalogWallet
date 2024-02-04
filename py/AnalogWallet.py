@@ -9,8 +9,6 @@ from prompt_toolkit import prompt
 from serial.tools import list_ports
 from pw_check import password_check
 
-from chains.ethereum import ETHtx
-
 class AnalogWallet:
     msgs = {
         0: "DONE",
@@ -55,8 +53,8 @@ class AnalogWallet:
     @staticmethod
     def getPasswordBytes():
         password = prompt("Enter password/secret: ", is_password=True)
-        if not password_check(password):
-            return None
+        #if not password_check(password):
+        #    return None
         passwordbytes = hashlib.sha256(password.encode()).digest()
         return passwordbytes        
     def waitForDisconnect(self):
@@ -67,8 +65,13 @@ class AnalogWallet:
             if len(ports)>len(newports):
                 return
             time.sleep(0.5)
-    def __init__(self, port_name, showCommands=False):
-        self.ser = serial.Serial(port_name, 115200)
+
+    def __init__(self, showCommands=False):
+        global WALLET
+        self.ser = None
+        port = AnalogWallet.waitForConnect()
+        time.sleep(0.5)
+        self.ser = serial.Serial(port, 115200)
         self.commands = ['init', 'open', 'erase', 'sign', 'restore', 'rnd', 'getid', 'firmwarehash']
         self.chaincommands = ['ether']
         self.commands += self.chaincommands
@@ -82,6 +85,8 @@ class AnalogWallet:
         self.SIGNATURE = None
         self.PASSWORD = None
         self.HEXHASH = None
+        self.ID = None
+        WALLET = self
 
     def guide(self):
         command = prompt("Enter command: ")
@@ -94,6 +99,7 @@ class AnalogWallet:
                 return
         if command in self.chaincommands:
             if self.deviceOpen:
+                from chains.ethereum import ETHtx
                 ETHtx(self.PUBLIC_KEY, self.ser, self.msgs)
                 return
             else:
@@ -109,6 +115,7 @@ class AnalogWallet:
 
     def run(self, command):
         cmIndex = self.commands.index(command).to_bytes(1, "little")
+        print("run", command)
         if command in {"open", "firmwarehash"}:
             if self.PASSWORD is None:
                 self.PASSWORD = self.getPasswordBytes()
@@ -121,9 +128,11 @@ class AnalogWallet:
                 self.PASSWORD = self.getPasswordBytes()
                 if not self.PASSWORD:
                     return
+            if self.ID is None:
+                self.ID = hashlib.sha256(str(time.time()).encode()).digest()
             self.write(cmIndex)
             self.write(self.PASSWORD)
-            self.write(hashlib.sha256(str(time.time()).encode()).digest())
+            self.write(self.ID)
         elif command == "sign":
             if self.HEXHASH is None:
                 self.HEXHASH = prompt("Enter hash [HEX]: ")
@@ -226,26 +235,26 @@ class AnalogWallet:
                     break
             else:
                 print(fis)
-
-def waitForConnect():
-    ports = list_ports.comports()
-    print("connect your wallet now")
-    while True:
-        newports = list_ports.comports()
-        if len(ports)<len(newports):
-            return list(set(newports).symmetric_difference(set(ports)))[0].device
-        time.sleep(0.5)
+    @staticmethod
+    def waitForConnect():
+        ports = list_ports.comports()
+        print("connect your wallet now")
+        while True:
+            newports = list_ports.comports()
+            if len(ports)<len(newports):
+                return list(set(newports).symmetric_difference(set(ports)))[0].device
+            time.sleep(0.5)
 
 if __name__ == "__main__":
     if "test" in sys.argv:
         cmds = ["erase", "firmwarehash", "init", "reconnect", "getid", "open", "sign", "reconnect", "erase", "restore", "reconnect", "open"]
-        aw = AnalogWallet(waitForConnect())
+        aw = AnalogWallet()
         aw.PASSWORD = hashlib.sha256("12345".encode()).digest()
         aw.HEXHASH = hashlib.sha256("test".encode()).digest()
         for cmd in cmds:
             if cmd == "reconnect":
                 aw.waitForDisconnect()
-                aw = AnalogWallet(waitForConnect())
+                aw = AnalogWallet()
                 aw.PASSWORD = hashlib.sha256("12345".encode()).digest()
                 aw.HEXHASH = hashlib.sha256("test".encode()).digest()
             else:
@@ -253,7 +262,7 @@ if __name__ == "__main__":
                 aw.run(cmd)
                 aw.parseResponses(cmd)
     else:
-        aw = AnalogWallet(waitForConnect(), True)
+        aw = AnalogWallet(True)
         while True:
             cmd = aw.guide()
             aw.parseResponses(cmd)

@@ -136,11 +136,11 @@ int RNG(uint8_t *dest, unsigned size)
   do{
     for (int i = 0; i < 4; i++){
       randomPin = (randomPin+1) % 4;
-      for (int j = 0; j < 32; j++){
+      for (int j = 0; j < 8; j++){
         getTrueRotateRandomByteWithSHAupdate();
       }
     }
     memcpy(dest, mySHA.result(), 32);
-  }while (dest[0]==0);
+  }while (memcmp(dest, dest+1, 31)==0);
   return 1;
 }

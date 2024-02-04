@@ -7,7 +7,6 @@ class ETHtx:
     def __init__(self, publicKey, ser, msgs):
         self.fromAddr = Web3().to_checksum_address(
             "0x"+Web3.keccak(bytes.fromhex(publicKey)).hex()[-40:])
-
         print("Your ETH address is:", self.fromAddr)
         to = input("Enter the TO address: ")
         amount = Web3.to_wei(prompt("Enter the amount in ether: ", default="0.01"), "ether")
@@ -41,8 +40,8 @@ class ETHtx:
 
     def build(self, nonce, to, value, chainId, maxGasPrice, maxPriorityFee):
         self.dynamic_fee_transaction = {
-                            "type": 2,  # optional - can be implicitly determined based on max fee params  # noqa: E501
-                            "gas": 21000,
+                            "type": 2,
+                            "gas": 50000,
                             "maxFeePerGas": maxGasPrice,
                             "maxPriorityFeePerGas": maxPriorityFee,
                             "data": "",
@@ -74,9 +73,11 @@ class ETHtx:
             try:
                 ADDR_FROM_TX = Account.recover_transaction(usTX.encode())
                 if ADDR_FROM_TX == self.fromAddr:
+                    tmpTX["v"] = z + tmpTX["chainId"] * 2 + 35
+                    print("recovered", ADDR_FROM_TX)
+                    print(tmpTX)
                     recoverAddr = [ADDR_FROM_TX, z, dict(tmpTX), usTX]
-                    break
             except Exception as e:
                 print(e)
         assert self.fromAddr == recoverAddr[0]
-        return TypedTransaction.from_dict(recoverAddr[2]).encode()
+        return recoverAddr[3].encode()

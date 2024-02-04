@@ -6,6 +6,7 @@ uint8_t sbuffer[32] = {0};
 void waitForSerial(){
   while (!Serial.available()){getTrueRotateRandomByteWithSHAupdate();}
 }
+
 void setup()
 {
   setRNG();

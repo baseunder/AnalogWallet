@@ -77,6 +77,7 @@ uint8_t getIntegrityHash(byte *seed)
   for (address = 0; address < (unsigned long)&__data_load_end; address++) {
     integritySHA.write(pgm_read_byte_near(address));
   }
+  integritySHA.write(seed, 32);
   Serial.write((uint8_t)19);
   Serial.write(integritySHA.result(),32);
   Serial.write((uint8_t)0);
