@@ -45,13 +45,17 @@ uint8_t secureWriteAndValidSD(uint8_t *data, int pin=4){
   return statb;
 }
 
-uint8_t checkCard(int pin = 4){
+uint8_t pingCard(int pin = 4){
   Sd2Card card;
-  if (card.init(SPI_QUARTER_SPEED, pin)){
-    return 0;
-  }else{
-    return 7;
-  }
+  if (card.init(SPI_QUARTER_SPEED, pin)==0){return 7;}
+  return 0;
+}
+
+uint8_t checkCard(int pin = 4){
+  if (pingCard(pin)){return 7;}
+  delay(50);
+  if (pingCard(pin)){return 7;}
+  return 0;
 }
 
 uint8_t initBackup(byte *p1, byte *pub1)
