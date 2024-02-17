@@ -136,7 +136,7 @@ int RNG(uint8_t *dest, unsigned size)
   do{
     for (int i = 0; i < 4; i++){
       randomPin = (randomPin+1) % 4;
-      for (int j = 0; j < 8; j++){
+      for (int j = 0; j < 32; j++){
         getTrueRotateRandomByteWithSHAupdate();
       }
     }

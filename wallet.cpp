@@ -111,6 +111,11 @@ uint8_t sign(uint8_t *hash)
 {
   Serial.write(16);
   Serial.write(hash, 32);
+  for (int i = 0; i < 32; i++){
+    updateSHA(public1[i]);
+    updateSHA(public1[i+32]);
+    updateSHA(hash[i]);
+  }  
   uint8_t sig[64];
   do {
   } while (uECC_sign(private1, hash, 32, sig, uECC_secp256k1())==0);
